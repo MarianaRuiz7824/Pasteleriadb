@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -30,19 +31,27 @@ function Sidebar() {
 
         <nav className="px-4 space-y-2">
 
-          <div className="flex items-center gap-3 bg-pink-100 text-pink-600 p-3 rounded-xl">
+          <Link
+  to="/"
+  className="flex items-center gap-3 bg-pink-100 text-pink-600 p-3 rounded-xl"
+>
 
-            <LayoutDashboard size={20} />
-            Dashboard
+  <LayoutDashboard size={20} />
 
-          </div>
+  Dashboard
 
-          <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer">
+</Link>
 
-            <Package size={20} />
-            Ingredientes
+          <Link
+      to="/ingredientes"
+      className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer"
+    >
 
-          </div>
+      <Package size={20} />
+
+      Ingredientes
+
+          </Link>
 
           <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer">
 
