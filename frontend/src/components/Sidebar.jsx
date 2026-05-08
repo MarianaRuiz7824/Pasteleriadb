@@ -60,19 +60,23 @@ function Sidebar() {
 
           </div>
 
-          <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer">
+          <Link to="/productos" className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer" >
 
-            <ShoppingBag size={20} />
+          <ShoppingBag size={20} />
+
             Productos
 
-          </div>
+          </Link>
 
-          <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer">
+          <Link to="/pedidos"
+  className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer"
+>
 
-            <ShoppingCart size={20} />
-            Pedidos
+  <ShoppingCart size={20} />
 
-          </div>
+  Pedidos
+
+</Link>
 
           <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer">
 
