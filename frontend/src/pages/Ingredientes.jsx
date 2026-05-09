@@ -202,6 +202,24 @@ const eliminarIngrediente = async (id, nombre) => {
     ing.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+const ingredientesBajoStock = ingredientes.filter(
+  (i) => i.cantidad_stock < 20
+);
+
+const ingredientesPorCaducar = ingredientes.filter((i) => {
+
+  const fecha = new Date(i.fecha_caducidad);
+
+  const hoy = new Date();
+
+  const sieteDias = new Date(
+    Date.now() + 7 * 24 * 60 * 60 * 1000
+  );
+
+  return fecha >= hoy && fecha <= sieteDias;
+
+});  
+
   const getStockStatus = (stock) => {
 
     if (stock < 20) {
@@ -265,8 +283,42 @@ const eliminarIngrediente = async (id, nombre) => {
 
       </div>
 
-      {/* Alerta */}
-      <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 mb-6">
+      {/* ALERTA DINÁMICA */}
+{(ingredientesBajoStock.length > 0 ||
+  ingredientesPorCaducar.length > 0) && (
+
+  <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 mb-6">
+
+    <div className="flex items-start gap-3">
+
+      <AlertCircle
+        className="text-orange-500 mt-1"
+        size={22}
+      />
+
+      <div>
+
+        <h3 className="font-bold text-orange-700 text-lg">
+          Alertas de Inventario
+        </h3>
+
+        <p className="text-orange-600 text-sm mt-1">
+
+          {ingredientesBajoStock.length > 0 &&
+            `${ingredientesBajoStock.length} ingrediente(s) con bajo stock. `}
+
+          {ingredientesPorCaducar.length > 0 &&
+            `${ingredientesPorCaducar.length} próximo(s) a caducar.`}
+
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+)}
 
         <div className="flex items-start gap-3">
 
@@ -285,8 +337,6 @@ const eliminarIngrediente = async (id, nombre) => {
           </div>
 
         </div>
-
-      </div>
 
       {/* Tabla */}
       <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
@@ -359,13 +409,40 @@ const eliminarIngrediente = async (id, nombre) => {
 
                 <td className="p-5">
 
-                  <span className="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm flex items-center gap-1 w-fit">
+                  {new Date(ingrediente.fecha_caducidad) < new Date() ? (
 
-                    <AlertCircle size={14} />
+  <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm flex items-center gap-1 w-fit">
 
-                    Por caducar
+    <AlertCircle size={14} />
 
-                  </span>
+    Caducado
+
+  </span>
+
+) : (
+
+  new Date(ingrediente.fecha_caducidad) <
+  new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) ? (
+
+    <span className="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm flex items-center gap-1 w-fit">
+
+      <AlertCircle size={14} />
+
+      Por caducar
+
+    </span>
+
+  ) : (
+
+    <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm flex items-center gap-1 w-fit">
+
+      ✓ Vigente
+
+    </span>
+
+  )
+
+)}
 
                 </td>
 
