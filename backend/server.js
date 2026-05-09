@@ -28,10 +28,145 @@ app.get("/productos", async (req, res) => {
   try {
 
     const result = await pool.query(
-      "SELECT * FROM productos"
+      "SELECT * FROM productos ORDER BY id"
     );
 
     res.json(result.rows);
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+});
+
+
+
+/* ======================================================
+   AGREGAR PRODUCTO
+====================================================== */
+
+app.post("/productos", async (req, res) => {
+
+  try {
+
+    const {
+      nombre,
+      precio,
+      cantidad_stock,
+      fecha_elaboracion
+    } = req.body;
+
+    const result = await pool.query(
+
+      `
+      INSERT INTO productos
+      (
+        nombre,
+        precio,
+        cantidad_stock,
+        fecha_elaboracion,
+        alerta_stock
+      )
+
+      VALUES ($1,$2,$3,$4,$5)
+
+      RETURNING *
+      `,
+
+      [
+        nombre,
+        precio,
+        cantidad_stock,
+        fecha_elaboracion,
+        cantidad_stock < 5
+      ]
+
+    );
+
+    res.json(result.rows[0]);
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json(error);
+
+  }
+
+});
+
+/* ======================================================
+   EDITAR PRODUCTO
+====================================================== */
+
+app.put("/productos/:id", async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+
+    const {
+      nombre,
+      precio,
+      cantidad_stock
+    } = req.body;
+
+    const result = await pool.query(
+
+      `
+      UPDATE productos
+      SET
+        nombre = $1,
+        precio = $2,
+        cantidad_stock = $3,
+        alerta_stock = ($3 < 5)
+
+      WHERE id = $4
+
+      RETURNING *
+      `,
+
+      [
+        nombre,
+        precio,
+        cantidad_stock,
+        id
+      ]
+
+    );
+
+    res.json(result.rows[0]);
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+});
+
+
+
+/* ======================================================
+   ELIMINAR PRODUCTO
+====================================================== */
+
+app.delete("/productos/:id", async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+
+    await pool.query(
+      "DELETE FROM productos WHERE id = $1",
+      [id]
+    );
+
+    res.json({
+      mensaje: "Producto eliminado"
+    });
 
   } catch (error) {
 
@@ -106,8 +241,6 @@ app.get("/ingredientes", async (req, res) => {
   }
 
 });
-
-
 
 /* ======================================================
    EDITAR INGREDIENTE
@@ -276,7 +409,8 @@ app.get("/pedidos", async (req, res) => {
 
         pedidos.fecha_solicitud,
         pedidos.fecha_entrega,
-        pedidos.comentarios
+        pedidos.comentarios,
+        pedidos.estado
 
       FROM pedidos
 
@@ -306,7 +440,86 @@ app.get("/pedidos", async (req, res) => {
 
 });
 
+app.post("/pedidos", async (req, res) => {
 
+  try {
+
+    const {
+      id_cliente,
+      id_empleado,
+      fecha_solicitud,
+      fecha_entrega,
+      comentarios,
+      productos
+    } = req.body;
+
+    // CREAR PEDIDO
+    const pedidoResult = await pool.query(
+
+      `
+      INSERT INTO pedidos
+      (
+        id_cliente,
+        id_empleado,
+        fecha_solicitud,
+        fecha_entrega,
+        comentarios
+      )
+
+      VALUES ($1,$2,$3,$4,$5)
+
+      RETURNING *
+      `,
+
+      [
+        id_cliente,
+        id_empleado,
+        fecha_solicitud,
+        fecha_entrega,
+        comentarios
+      ]
+
+    );
+
+    const pedido = pedidoResult.rows[0];
+
+    // INSERTAR PRODUCTOS DEL PEDIDO
+    for (const producto of productos) {
+
+      await pool.query(
+
+        `
+        INSERT INTO pedidos_productos
+        (
+          id_pedido,
+          id_producto,
+          cantidad
+        )
+
+        VALUES ($1,$2,$3)
+        `,
+
+        [
+          pedido.id,
+          producto.id_producto,
+          producto.cantidad
+        ]
+
+      );
+
+    }
+
+    res.json(pedido);
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json(error);
+
+  }
+
+});
 
 /* ======================================================
    PRODUCTOS DE PEDIDO
@@ -346,8 +559,6 @@ app.get("/pedidos/:id/productos", async (req, res) => {
   }
 
 });
-
-
 
 /* ======================================================
    INICIAR SERVIDOR

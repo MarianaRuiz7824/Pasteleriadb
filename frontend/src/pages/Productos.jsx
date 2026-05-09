@@ -15,6 +15,42 @@ function Productos() {
   const [search, setSearch] = useState("");
   const [selectedProducto, setSelectedProducto] = useState(null);
   const [ingredientesProducto, setIngredientesProducto] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [nuevoProducto, setNuevoProducto] = useState({
+
+  nombre: "",
+  precio: "",
+  cantidad_stock: "",
+  fecha_elaboracion: ""
+  
+
+});
+
+const cargarProductos = async () => {
+
+  try {
+
+    const res = await fetch(
+      "http://localhost:3000/productos"
+    );
+
+    const data = await res.json();
+
+    setProductos(data);
+
+    if (data.length > 0) {
+
+      setSelectedProducto(data[0]);
+
+    }
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
 
   useEffect(() => {
 
@@ -69,6 +105,147 @@ function Productos() {
 
 };
 
+const agregarProducto = async () => {
+
+  try {
+
+    await fetch(
+      "http://localhost:3000/productos",
+      {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+  nombre: nuevoProducto.nombre,
+
+  precio: Number(nuevoProducto.precio),
+
+  cantidad_stock: Number(
+    nuevoProducto.cantidad_stock
+  ),
+
+  fecha_elaboracion:
+    nuevoProducto.fecha_elaboracion
+
+})
+
+      }
+    );
+
+    const res = await fetch(
+      "http://localhost:3000/productos"
+    );
+
+    const data = await res.json();
+
+    setProductos(data);
+
+    setShowModal(false);
+
+    setNuevoProducto({
+
+      nombre: "",
+      precio: "",
+      cantidad_stock: ""
+
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
+const editarProducto = async (producto) => {
+
+  const nuevoStock = prompt(
+    `Nuevo stock para ${producto.nombre}:`,
+    producto.cantidad_stock
+  );
+
+  if (nuevoStock === null) return;
+
+  try {
+
+    await fetch(
+      `http://localhost:3000/productos/${producto.id}`,
+      {
+
+        method: "PUT",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+          nombre: producto.nombre,
+
+          precio: producto.precio,
+
+          cantidad_stock: Number(nuevoStock)
+
+        })
+
+      }
+    );
+
+    const res = await fetch(
+      "http://localhost:3000/productos"
+    );
+
+    const data = await res.json();
+
+    setProductos(data);
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
+const eliminarProducto = async (id, nombre) => {
+
+  const confirmar = window.confirm(
+    `¿Seguro que deseas eliminar "${nombre}"?`
+  );
+
+  if (!confirmar) return;
+
+  try {
+
+    await fetch(
+      `http://localhost:3000/productos/${id}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    const res = await fetch(
+      "http://localhost:3000/productos"
+    );
+
+    const data = await res.json();
+
+    setProductos(data);
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
   const filteredProductos = productos.filter((producto) =>
     producto.nombre.toLowerCase().includes(search.toLowerCase())
   );
@@ -87,6 +264,10 @@ function Productos() {
     productos.length > 0
       ? valorTotal / productos.length
       : 0;
+
+      const productosBajoStock = productos.filter(
+  (p) => p.cantidad_stock < 5
+);
 
   return (
 
@@ -125,13 +306,45 @@ function Productos() {
 
         </div>
 
-        <button className="bg-pink-500 hover:bg-pink-600 text-white px-5 rounded-xl flex items-center gap-2">
+        {productosBajoStock.length > 0 && (
 
-          <Plus size={20} />
+  <div className="bg-red-50 border border-red-200 rounded-2xl p-5 mb-6">
 
-          Agregar Producto
+    <div className="flex items-start gap-3">
 
-        </button>
+      <Package
+        className="text-red-500 mt-1"
+        size={22}
+      />
+
+      <div>
+
+        <h3 className="font-bold text-red-700 text-lg">
+          Alertas de Inventario
+        </h3>
+
+        <p className="text-red-600 text-sm mt-1">
+
+          Hay {productosBajoStock.length}
+          producto(s) con bajo stock.
+
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+)}
+
+        <button
+  onClick={() => setShowModal(true)}
+  className="bg-pink-500 hover:bg-pink-600 text-white px-5 rounded-xl flex items-center gap-2"
+>
+  <Plus size={20} />
+  Agregar Producto
+</button>
 
       </div>
 
@@ -243,7 +456,15 @@ function Productos() {
 
                   <td className="p-4">
 
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                    <span
+  className={`px-3 py-1 rounded-full text-sm ${
+    producto.cantidad_stock < 5
+      ? "bg-red-100 text-red-600"
+      : producto.cantidad_stock < 15
+      ? "bg-yellow-100 text-yellow-600"
+      : "bg-green-100 text-green-700"
+  }`}
+>
 
                       {producto.cantidad_stock} uds
 
@@ -263,11 +484,22 @@ function Productos() {
                         <Eye size={20} />
                       </button>
 
-                      <button className="text-blue-500">
+                      <button
+  onClick={() => editarProducto(producto)}
+  className="text-blue-500"
+>
                         <Pencil size={20} />
                       </button>
 
-                      <button className="text-red-500">
+                      <button
+  onClick={() =>
+    eliminarProducto(
+      producto.id,
+      producto.nombre
+    )
+  }
+  className="text-red-500"
+>
                         <Trash2 size={20} />
                       </button>
 
@@ -392,6 +624,95 @@ function Productos() {
         </div>
 
       </div>
+
+{showModal && (
+
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+    <div className="bg-white w-[500px] rounded-2xl p-8">
+
+      <h2 className="text-3xl font-bold mb-6">
+        Nuevo Producto
+      </h2>
+
+      <div className="space-y-4">
+
+        <input
+          type="text"
+          placeholder="Nombre"
+          value={nuevoProducto.nombre}
+          onChange={(e) =>
+            setNuevoProducto({
+              ...nuevoProducto,
+              nombre: e.target.value
+            })
+          }
+          className="w-full border rounded-xl p-3"
+        />
+
+        <input
+          type="number"
+          placeholder="Precio"
+          value={nuevoProducto.precio}
+          onChange={(e) =>
+            setNuevoProducto({
+              ...nuevoProducto,
+              precio: e.target.value
+            })
+          }
+          className="w-full border rounded-xl p-3"
+        />
+
+        <input
+          type="number"
+          placeholder="Cantidad stock"
+          value={nuevoProducto.cantidad_stock}
+          onChange={(e) =>
+            setNuevoProducto({
+              ...nuevoProducto,
+              cantidad_stock: e.target.value
+            })
+          }
+          className="w-full border rounded-xl p-3"
+        />
+
+        <input
+  type="date"
+  value={nuevoProducto.fecha_elaboracion}
+  onChange={(e) =>
+    setNuevoProducto({
+      ...nuevoProducto,
+      fecha_elaboracion: e.target.value
+    })
+  }
+  className="w-full border rounded-xl p-3"
+/>
+
+      </div>
+
+      <div className="flex justify-end gap-4 mt-8">
+
+        <button
+          onClick={() => setShowModal(false)}
+          className="px-5 py-3 rounded-xl border"
+        >
+          Cancelar
+        </button>
+
+        <button
+          onClick={agregarProducto}
+          className="bg-pink-500 hover:bg-pink-600 text-white px-5 py-3 rounded-xl"
+        >
+          Guardar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+)}
 
     </main>
 

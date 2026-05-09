@@ -9,11 +9,132 @@ import {
 } from "lucide-react";
 
 function Pedidos() {
-
   const [pedidos, setPedidos] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [productosPedido, setProductosPedido] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+
+const [nuevoPedido, setNuevoPedido] = useState({
+
+  id_cliente: "",
+  id_empleado: "",
+  fecha_solicitud: "",
+  fecha_entrega: "",
+  comentarios: ""
+
+});
+
+const [nuevosProductos, setNuevosProductos] = useState([
+  {
+    id_producto: "",
+    cantidad: 1
+  }
+]);
+
+const agregarCampoProducto = () => {
+
+  setNuevosProductos([
+    ...nuevosProductos,
+    {
+      id_producto: "",
+      cantidad: 1
+    }
+  ]);
+
+};
+
+const cambiarProducto = (
+  index,
+  campo,
+  valor
+) => {
+
+  const copia = [...nuevosProductos];
+
+  copia[index][campo] = valor;
+
+  setNuevosProductos(copia);
+
+};
+
+const agregarPedido = async () => {
+
+  try {
+
+    await fetch(
+      "http://localhost:3000/pedidos",
+      {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+          id_cliente: Number(
+            nuevoPedido.id_cliente
+          ),
+
+          id_empleado: Number(
+            nuevoPedido.id_empleado
+          ),
+
+          fecha_solicitud:
+            nuevoPedido.fecha_solicitud,
+
+          fecha_entrega:
+            nuevoPedido.fecha_entrega,
+
+          comentarios:
+            nuevoPedido.comentarios,
+
+          productos: nuevosProductos.map((producto) => ({
+  id_producto: Number(producto.id_producto),
+  cantidad: Number(producto.cantidad)
+}))
+
+        })
+
+      }
+    );
+
+    const res = await fetch(
+      "http://localhost:3000/pedidos"
+    );
+
+    const data = await res.json();
+
+    setPedidos(data);
+
+    setShowModal(false);
+
+    setNuevoPedido({
+
+      id_cliente: "",
+      id_empleado: "",
+      fecha_solicitud: "",
+      fecha_entrega: "",
+      comentarios: ""
+
+    });
+
+    setNuevosProductos([
+      {
+        id_producto: "",
+        cantidad: 1
+      }
+    ]);
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
 
   useEffect(() => {
 
@@ -100,7 +221,10 @@ function Pedidos() {
 
         </div>
 
-        <button className="bg-green-500 hover:bg-green-600 text-white px-5 rounded-xl flex items-center gap-2">
+        <button
+  onClick={() => setShowModal(true)}
+  className="bg-green-500 hover:bg-green-600 text-white px-5 rounded-xl flex items-center gap-2"
+>
 
           <Plus size={20} />
 
@@ -258,7 +382,7 @@ function Pedidos() {
 
                       <CheckCircle size={16} />
 
-                      Entregado
+                      {pedido.estado}
 
                     </span>
 
@@ -318,7 +442,7 @@ function Pedidos() {
             </div>
 
             <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm">
-              Entregado
+              {selectedPedido.estado}
             </span>
 
             <div className="mt-8 space-y-6">
@@ -446,6 +570,160 @@ function Pedidos() {
         )}
 
       </div>
+
+{showModal && (
+
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+    <div className="bg-white w-[700px] rounded-2xl p-8 max-h-[90vh] overflow-y-auto">
+
+      <h2 className="text-3xl font-bold mb-6">
+        Nuevo Pedido
+      </h2>
+
+      <div className="space-y-4">
+
+        <input
+          type="number"
+          placeholder="ID Cliente"
+          value={nuevoPedido.id_cliente}
+          onChange={(e) =>
+            setNuevoPedido({
+              ...nuevoPedido,
+              id_cliente: e.target.value
+            })
+          }
+          className="w-full border rounded-xl p-3"
+        />
+
+        <input
+          type="number"
+          placeholder="ID Empleado"
+          value={nuevoPedido.id_empleado}
+          onChange={(e) =>
+            setNuevoPedido({
+              ...nuevoPedido,
+              id_empleado: e.target.value
+            })
+          }
+          className="w-full border rounded-xl p-3"
+        />
+
+        <input
+          type="datetime-local"
+          value={nuevoPedido.fecha_solicitud}
+          onChange={(e) =>
+            setNuevoPedido({
+              ...nuevoPedido,
+              fecha_solicitud: e.target.value
+            })
+          }
+          className="w-full border rounded-xl p-3"
+        />
+
+        <input
+          type="datetime-local"
+          value={nuevoPedido.fecha_entrega}
+          onChange={(e) =>
+            setNuevoPedido({
+              ...nuevoPedido,
+              fecha_entrega: e.target.value
+            })
+          }
+          className="w-full border rounded-xl p-3"
+        />
+
+        <textarea
+          placeholder="Comentarios"
+          value={nuevoPedido.comentarios}
+          onChange={(e) =>
+            setNuevoPedido({
+              ...nuevoPedido,
+              comentarios: e.target.value
+            })
+          }
+          className="w-full border rounded-xl p-3"
+        />
+
+        <div className="border-t pt-6">
+
+          <h3 className="font-bold text-xl mb-4">
+            Productos
+          </h3>
+
+          {nuevosProductos.map((producto, index) => (
+
+            <div
+              key={index}
+              className="flex gap-4 mb-4"
+            >
+
+              <input
+                type="number"
+                placeholder="ID Producto"
+                value={producto.id_producto}
+                onChange={(e) =>
+                  cambiarProducto(
+                    index,
+                    "id_producto",
+                    e.target.value
+                  )
+                }
+                className="flex-1 border rounded-xl p-3"
+              />
+
+              <input
+                type="number"
+                placeholder="Cantidad"
+                value={producto.cantidad}
+                onChange={(e) =>
+                  cambiarProducto(
+                    index,
+                    "cantidad",
+                    e.target.value
+                  )
+                }
+                className="w-40 border rounded-xl p-3"
+              />
+
+            </div>
+
+          ))}
+
+          <button
+            onClick={agregarCampoProducto}
+            className="bg-gray-200 px-4 py-2 rounded-xl"
+          >
+            + Agregar Producto
+          </button>
+
+        </div>
+
+      </div>
+
+      <div className="flex justify-end gap-4 mt-8">
+
+        <button
+          onClick={() => setShowModal(false)}
+          className="px-5 py-3 rounded-xl border"
+        >
+          Cancelar
+        </button>
+
+        <button
+          onClick={agregarPedido}
+          className="bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-xl"
+        >
+          Guardar Pedido
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+)}
 
     </main>
 

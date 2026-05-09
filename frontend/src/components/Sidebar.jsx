@@ -53,13 +53,6 @@ function Sidebar() {
 
           </Link>
 
-          <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer">
-
-            <Wrench size={20} />
-            Materiales
-
-          </div>
-
           <Link to="/productos" className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer" >
 
           <ShoppingBag size={20} />
