@@ -1,0 +1,101 @@
+-----------------------------------------------------------------------------------------------------
+
+with Clientes_Personas as (
+  insert into Personas (edad, nombre, telefono, email)
+  values
+  (24, 'Juan Pablo Hernandez',    '3311122233', 'juan.hernandez@gmail.com'),
+  (21, 'Daniela Lopez Garcia',      '3322233344', 'daniela.lopez@hotmail.com'),
+  (28, 'Ricardo Mendoza Cruz',   '3333344455', 'ricardo.mendoza@yahoo.com'),
+  (35, 'Fernanda Castillo Vega',  '3344455566', 'fernanda.castillo@gmail.com'),
+  (26, 'Miguel Angel Ortiz',          '3355566677', 'miguel.ortiz@outlook.com')
+  returning id
+)
+insert into Clientes (id)
+select id from Clientes_Personas;
+
+-----------------------------------------------------------------------------------------------------
+
+with Empleados_Personas as (
+  insert into Personas (edad, nombre, telefono, email)
+  values
+  (29, 'Luis Garcia',        '3311111111', 'luis.garcia@gmail.com'),
+  (34, 'Maria Lopez',     '3322222222', 'maria.lopez@hotmail.com'),
+  (26, 'Carlos Perez',     '3333333333', 'carlos.perez@yahoo.com'),
+  (31, 'Ana Torres',        '3344444444', 'ana.torres@gmail.com'),
+  (28, 'Jorge Ramirez', '3355555555', 'jorge.ramirez@outlook.com')
+  returning id
+)
+insert into Empleados (id)
+select id from Empleados_Personas;
+
+update Empleados e
+set posicion = 'Gerente', salario_mensual = 15000.00
+from Personas p
+where e.id = p.id and p.nombre = 'Luis Garcia';
+
+update Empleados e
+set posicion = 'Cajero', salario_mensual = 8000.00
+from Personas p
+where e.id = p.id and p.nombre = 'Maria Lopez';
+
+update Empleados e
+set posicion = 'Supervisor', salario_mensual = 12000.00
+from Personas p
+where e.id = p.id and p.nombre = 'Carlos Perez';
+
+update Empleados e
+set posicion = 'Almacenista', salario_mensual = 9000.00
+from Personas p
+where e.id = p.id and p.nombre = 'Ana Torres';
+
+update Empleados e
+set posicion = 'Repartidor', salario_mensual = 8500.00
+from Personas p
+where e.id = p.id and p.nombre = 'Jorge Ramirez';
+
+-----------------------------------------------------------------------------------------------------
+
+
+insert into Ingredientes (nombre, unidad_medida, fecha_caducidad, precio_por_unidad, cantidad_stock) 
+values
+('Harina de trigo', 'kg', '2026-01-15', 18.50, 50),
+('Azucar', 'kg', '2026-03-10', 22.00, 40),
+('Leche', 'lt', '2025-12-01', 15.75, 30),
+('Huevos', 'pz', '2025-11-20', 2.50, 200),
+('Mantequilla', 'kg', '2025-12-15', 45.00, 25);
+
+insert into Productos (nombre, precio, cantidad_stock, fecha_elaboracion)
+values
+('Pastel de chocolate', 350.00, 10, '2026-03-20'),
+('Cupcakes de vainilla', 120.00, 25, '2026-03-22'),
+('Pay de limon', 180.00, 8, '2026-03-21'),
+('Pastel de tres leches', 400.00, 6, '2026-03-23'),
+('Galletas decoradas', 90.00, 30, '2026-03-24');
+
+insert into Pedidos (id_cliente, id_empleado, fecha_solicitud, fecha_entrega, comentarios)
+values
+(1, 6, '2026-03-20 10:00:00', '2026-03-21 15:00:00', 'Pastel de chocolate para cumpleaÃ±os'),
+(2, 7, '2026-03-21 12:30:00', '2026-03-22 18:00:00', 'Cupcakes decorados tema infantil'),
+(3, 8, '2026-03-22 09:15:00', '2026-03-23 14:00:00', 'Pay de limÃ³n sin azÃºcar'),
+(4, 9, '2026-03-23 16:45:00', '2026-03-24 20:00:00', 'Pastel tres leches con fresas'),
+(5, 10, '2026-03-24 11:00:00', '2026-03-25 17:30:00', 'Galletas decoradas para evento');
+
+
+---------------------------------------------------------------------------------------
+
+insert into Productos_Ingredientes (id_producto, id_ingrediente, cantidad)
+values
+(1, 1, 0.50),   -- Pastel usa harina (kg)
+(1, 2, 0.30),   -- Pastel usa azÃºcar (kg)
+(2, 3, 1.00),   -- Cupcakes usan leche (lt)
+(3, 2, 0.20),   -- Pay usa azÃºcar (kg)
+(4, 5, 0.40);   -- Tres leches usa mantequilla (kg)
+
+
+insert into Pedidos_Productos (id_pedido, id_producto, cantidad)
+values
+(1, 1, 1),  -- Pedido 1: 1 pastel de chocolate
+(1, 2, 6),  -- Pedido 1: 6 cupcakes
+(2, 3, 1),  -- Pedido 2: 1 pay de limon
+(3, 4, 1),  -- Pedido 3: 1 pastel tres leches
+(4, 5, 10); -- Pedido 4: 10 galletas
