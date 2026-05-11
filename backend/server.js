@@ -7,15 +7,57 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const pool = new Pool({
+const pools = {
 
-  user: "postgres",
-  host: "localhost",
-  database: "Pasteleriadb",
-  password: "1234",
-  port: 5432,
+  admin: new Pool({
+    user: "admin_user",
+    host: "localhost",
+    database: "Pasteleriadb",
+    password: "1234",
+    port: 5432,
+  }),
 
-});
+  empleado_ventas: new Pool({
+    user: "ventas_user",
+    host: "localhost",
+    database: "Pasteleriadb",
+    password: "1234",
+    port: 5432,
+  }),
+
+  empleado_inventario: new Pool({
+    user: "inventario_user",
+    host: "localhost",
+    database: "Pasteleriadb",
+    password: "1234",
+    port: 5432,
+  }),
+
+  empleado_normal: new Pool({
+    user: "normal_user",
+    host: "localhost",
+    database: "Pasteleriadb",
+    password: "1234",
+    port: 5432,
+  }),
+
+  cliente: new Pool({
+    user: "cliente_user",
+    host: "localhost",
+    database: "Pasteleriadb",
+    password: "1234",
+    port: 5432,
+  }),
+
+};
+
+const obtenerPool = (req) => {
+
+  const rol = req.headers["rol"];
+
+  return pools[rol] || pools.cliente;
+
+};
 
 
 
@@ -26,8 +68,8 @@ const pool = new Pool({
 app.get("/productos", async (req, res) => {
 
   try {
-
-    const result = await pool.query(
+const pool = obtenerPool(req);
+const result = await pool.query(
       "SELECT * FROM productos ORDER BY id"
     );
 
@@ -58,7 +100,8 @@ app.post("/productos", async (req, res) => {
       fecha_elaboracion
     } = req.body;
 
-    const result = await pool.query(
+    const pool = obtenerPool(req);
+const result = await pool.query(
 
       `
       INSERT INTO productos
@@ -113,7 +156,8 @@ app.put("/productos/:id", async (req, res) => {
       cantidad_stock
     } = req.body;
 
-    const result = await pool.query(
+    const pool = obtenerPool(req);
+const result = await pool.query(
 
       `
       UPDATE productos
@@ -188,7 +232,8 @@ app.get("/productos/:id/ingredientes", async (req, res) => {
 
     const { id } = req.params;
 
-    const result = await pool.query(
+    const pool = obtenerPool(req);
+const result = await pool.query(
 
       `
       SELECT
@@ -228,7 +273,8 @@ app.get("/ingredientes", async (req, res) => {
 
   try {
 
-    const result = await pool.query(
+    const pool = obtenerPool(req);
+const result = await pool.query(
       "SELECT * FROM ingredientes ORDER BY id"
     );
 
@@ -260,8 +306,8 @@ app.put("/ingredientes/:id", async (req, res) => {
       cantidad_stock
     } = req.body;
 
-    const result = await pool.query(
-
+    const pool = obtenerPool(req);
+const result = await pool.query(
       `
       UPDATE ingredientes
       SET
@@ -316,7 +362,8 @@ app.post("/ingredientes", async (req, res) => {
       cantidad_stock
     } = req.body;
 
-    const result = await pool.query(
+    const pool = obtenerPool(req);
+const result = await pool.query(
 
       `
       INSERT INTO ingredientes
@@ -394,7 +441,8 @@ app.get("/pedidos", async (req, res) => {
 
   try {
 
-    const result = await pool.query(`
+    const pool = obtenerPool(req);
+const result = await pool.query(`
 
       SELECT
         pedidos.id,
@@ -531,7 +579,8 @@ app.get("/pedidos/:id/productos", async (req, res) => {
 
     const { id } = req.params;
 
-    const result = await pool.query(`
+    const pool = obtenerPool(req);
+const result = await pool.query(`
 
       SELECT
         productos.nombre,
@@ -568,7 +617,8 @@ app.get("/empleados", async (req, res) => {
 
   try {
 
-    const result = await pool.query(`
+    const pool = obtenerPool(req);
+const result = await pool.query(`
 
       SELECT
         empleados.id,
@@ -816,6 +866,7 @@ app.delete("/empleados/:id", async (req, res) => {
 app.get("/clientes", async (req, res) => {
 
   try {
+const pool = obtenerPool(req);
 const result = await pool.query(`
 
   SELECT

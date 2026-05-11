@@ -1,4 +1,8 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route
+} from "react-router-dom";
 
 import Sidebar from "./components/Sidebar";
 
@@ -8,49 +12,78 @@ import Productos from "./pages/Productos";
 import Pedidos from "./pages/Pedidos";
 import Empleados from "./pages/Empleados";
 import Clientes from "./pages/Clientes";
+import Login from "./pages/Login";
 
 function App() {
+
+  if (
+    !localStorage.getItem("rol") &&
+    window.location.pathname !== "/login"
+  ) {
+
+    window.location.href = "/login";
+
+  }
 
   return (
 
     <BrowserRouter>
 
-      <div className="flex bg-[#f5f6fa] min-h-screen">
+      <Routes>
 
-        <Sidebar />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-        <Routes>
+        <Route
+          path="*"
+          element={
 
-          <Route path="/" element={<Dashboard />} />
+            <div className="flex bg-[#f5f6fa] min-h-screen">
 
-          <Route
-            path="/ingredientes"
-            element={<Ingredientes />}
-          />
+              <Sidebar />
 
-          <Route
-            path="/productos"
-            element={<Productos />}
-          />
+              <Routes>
 
-          <Route
-            path="/pedidos"
-            element={<Pedidos />}
-          />
+                <Route
+                  path="/"
+                  element={<Dashboard />}
+                />
 
-          <Route
-            path="/empleados"
-            element={<Empleados />}
-          />
+                <Route
+                  path="/ingredientes"
+                  element={<Ingredientes />}
+                />
 
-          <Route
-            path="/clientes"
-            element={<Clientes />}
-          />
+                <Route
+                  path="/productos"
+                  element={<Productos />}
+                />
 
-        </Routes>
+                <Route
+                  path="/pedidos"
+                  element={<Pedidos />}
+                />
 
-      </div>
+                <Route
+                  path="/empleados"
+                  element={<Empleados />}
+                />
+
+                <Route
+                  path="/clientes"
+                  element={<Clientes />}
+                />
+
+              </Routes>
+
+            </div>
+
+          }
+        />
+
+      </Routes>
 
     </BrowserRouter>
 

@@ -11,252 +11,334 @@ import {
 
 function Productos() {
 
+  const rol = localStorage.getItem("rol");
+
+  const puedeEditar = [
+    "admin",
+    "empleado_inventario"
+  ].includes(rol);
+
   const [productos, setProductos] = useState([]);
   const [search, setSearch] = useState("");
-  const [selectedProducto, setSelectedProducto] = useState(null);
-  const [ingredientesProducto, setIngredientesProducto] = useState([]);
+
+  const [selectedProducto, setSelectedProducto] =
+    useState(null);
+
+  const [ingredientesProducto, setIngredientesProducto] =
+    useState([]);
+
   const [showModal, setShowModal] = useState(false);
+
   const [nuevoProducto, setNuevoProducto] = useState({
 
-  nombre: "",
-  precio: "",
-  cantidad_stock: "",
-  fecha_elaboracion: ""
-  
+    nombre: "",
+    precio: "",
+    cantidad_stock: "",
+    fecha_elaboracion: ""
 
-});
-
-const cargarProductos = async () => {
-
-  try {
-
-    const res = await fetch(
-      "http://localhost:3000/productos"
-    );
-
-    const data = await res.json();
-
-    setProductos(data);
-
-    if (data.length > 0) {
-
-      setSelectedProducto(data[0]);
-
-    }
-
-  } catch (error) {
-
-    console.log(error);
-
-  }
-
-};
+  });
 
   useEffect(() => {
 
-  fetch("http://localhost:3000/productos")
-    .then(res => res.json())
-    .then(async (data) => {
+    cargarProductos();
 
-      setProductos(data);
+  }, []);
+
+  const cargarProductos = async () => {
+
+    try {
+
+      const res = await fetch(
+        "http://localhost:3000/productos",
+        {
+          headers: {
+            rol
+          }
+        }
+      );
+
+      const data = await res.json();
+
+      setProductos(
+        Array.isArray(data) ? data : []
+      );
 
       if (data.length > 0) {
 
-        setSelectedProducto(data[0]);
-
-        // cargar ingredientes del primero
-        const resIngredientes = await fetch(
-          `http://localhost:3000/productos/${data[0].id}/ingredientes`
-        );
-
-        const ingredientes = await resIngredientes.json();
-
-        setIngredientesProducto(ingredientes);
+        verProducto(data[0]);
 
       }
 
-    });
+    } catch (error) {
 
-}, []);
+      console.log(error);
+
+    }
+
+  };
 
   const verProducto = async (producto) => {
 
-  try {
+    try {
 
-    setSelectedProducto(producto);
+      setSelectedProducto(producto);
 
-    const res = await fetch(
-      `http://localhost:3000/productos/${producto.id}/ingredientes`
-    );
+      const res = await fetch(
+        `http://localhost:3000/productos/${producto.id}/ingredientes`,
+        {
+          headers: {
+            rol
+          }
+        }
+      );
 
-    console.log(res);
+      const data = await res.json();
 
-    const data = await res.json();
+      setIngredientesProducto(
+        Array.isArray(data) ? data : []
+      );
 
-    console.log(data);
+    } catch (error) {
 
-    setIngredientesProducto(data);
+      console.log(error);
 
-  } catch (error) {
+    }
 
-    console.log("ERROR:", error);
+  };
 
-  }
+  const agregarProducto = async () => {
 
-};
+    if (!puedeEditar) {
 
-const agregarProducto = async () => {
+      alert(
+        "No tienes permisos para agregar productos"
+      );
 
-  try {
+      return;
 
-    await fetch(
-      "http://localhost:3000/productos",
-      {
+    }
 
-        method: "POST",
+    try {
 
-        headers: {
-          "Content-Type": "application/json"
-        },
+      const res = await fetch(
+        "http://localhost:3000/productos",
+        {
 
-        body: JSON.stringify({
+          method: "POST",
 
-  nombre: nuevoProducto.nombre,
+          headers: {
+            "Content-Type": "application/json",
+            rol
+          },
 
-  precio: Number(nuevoProducto.precio),
+          body: JSON.stringify({
 
-  cantidad_stock: Number(
-    nuevoProducto.cantidad_stock
-  ),
+            nombre: nuevoProducto.nombre,
 
-  fecha_elaboracion:
-    nuevoProducto.fecha_elaboracion
+            precio: Number(
+              nuevoProducto.precio
+            ),
 
-})
+            cantidad_stock: Number(
+              nuevoProducto.cantidad_stock
+            ),
 
-      }
-    );
+            fecha_elaboracion:
+              nuevoProducto.fecha_elaboracion
 
-    const res = await fetch(
-      "http://localhost:3000/productos"
-    );
+          })
 
-    const data = await res.json();
+        }
+      );
 
-    setProductos(data);
+      if (!res.ok) {
 
-    setShowModal(false);
+        const error = await res.json();
 
-    setNuevoProducto({
+        alert(
+          error.error ||
+          "No tienes permisos"
+        );
 
-      nombre: "",
-      precio: "",
-      cantidad_stock: ""
-
-    });
-
-  } catch (error) {
-
-    console.log(error);
-
-  }
-
-};
-
-const editarProducto = async (producto) => {
-
-  const nuevoStock = prompt(
-    `Nuevo stock para ${producto.nombre}:`,
-    producto.cantidad_stock
-  );
-
-  if (nuevoStock === null) return;
-
-  try {
-
-    await fetch(
-      `http://localhost:3000/productos/${producto.id}`,
-      {
-
-        method: "PUT",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-
-          nombre: producto.nombre,
-
-          precio: producto.precio,
-
-          cantidad_stock: Number(nuevoStock)
-
-        })
+        return;
 
       }
+
+      cargarProductos();
+
+      setShowModal(false);
+
+      setNuevoProducto({
+
+        nombre: "",
+        precio: "",
+        cantidad_stock: "",
+        fecha_elaboracion: ""
+
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  };
+
+  const editarProducto = async (producto) => {
+
+    if (!puedeEditar) {
+
+      alert(
+        "No tienes permisos para editar productos"
+      );
+
+      return;
+
+    }
+
+    const nuevoStock = prompt(
+      `Nuevo stock para ${producto.nombre}:`,
+      producto.cantidad_stock
     );
 
-    const res = await fetch(
-      "http://localhost:3000/productos"
-    );
+    if (nuevoStock === null) return;
 
-    const data = await res.json();
+    try {
 
-    setProductos(data);
+      const res = await fetch(
+        `http://localhost:3000/productos/${producto.id}`,
+        {
 
-  } catch (error) {
+          method: "PUT",
 
-    console.log(error);
+          headers: {
+            "Content-Type": "application/json",
+            rol
+          },
 
-  }
+          body: JSON.stringify({
 
-};
+            nombre: producto.nombre,
 
-const eliminarProducto = async (id, nombre) => {
+            precio: producto.precio,
 
-  const confirmar = window.confirm(
-    `¿Seguro que deseas eliminar "${nombre}"?`
-  );
+            cantidad_stock: Number(
+              nuevoStock
+            )
 
-  if (!confirmar) return;
+          })
 
-  try {
+        }
+      );
 
-    await fetch(
-      `http://localhost:3000/productos/${id}`,
-      {
-        method: "DELETE"
+      if (!res.ok) {
+
+        const error = await res.json();
+
+        alert(
+          error.error ||
+          "No tienes permisos"
+        );
+
+        return;
+
       }
+
+      cargarProductos();
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  };
+
+  const eliminarProducto = async (id, nombre) => {
+
+    if (!puedeEditar) {
+
+      alert(
+        "No tienes permisos para eliminar productos"
+      );
+
+      return;
+
+    }
+
+    const confirmar = window.confirm(
+      `¿Seguro que deseas eliminar "${nombre}"?`
     );
 
-    const res = await fetch(
-      "http://localhost:3000/productos"
-    );
+    if (!confirmar) return;
 
-    const data = await res.json();
+    try {
 
-    setProductos(data);
+      const res = await fetch(
+        `http://localhost:3000/productos/${id}`,
+        {
 
-  } catch (error) {
+          method: "DELETE",
 
-    console.log(error);
+          headers: {
+            rol
+          }
 
-  }
+        }
+      );
 
-};
+      if (!res.ok) {
 
-  const filteredProductos = productos.filter((producto) =>
-    producto.nombre.toLowerCase().includes(search.toLowerCase())
-  );
+        const error = await res.json();
+
+        alert(
+          error.error ||
+          "No tienes permisos"
+        );
+
+        return;
+
+      }
+
+      cargarProductos();
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  };
+
+  const filteredProductos =
+    Array.isArray(productos)
+
+      ? productos.filter((producto) =>
+
+          (producto.nombre || "")
+            .toLowerCase()
+            .includes(
+              search.toLowerCase()
+            )
+
+        )
+
+      : [];
 
   const totalStock = productos.reduce(
-    (sum, p) => sum + p.cantidad_stock,
+    (sum, p) =>
+      sum + Number(p.cantidad_stock || 0),
     0
   );
 
   const valorTotal = productos.reduce(
-    (sum, p) => sum + (p.precio * p.cantidad_stock),
+    (sum, p) =>
+      sum +
+      (
+        Number(p.precio || 0) *
+        Number(p.cantidad_stock || 0)
+      ),
     0
   );
 
@@ -265,15 +347,17 @@ const eliminarProducto = async (id, nombre) => {
       ? valorTotal / productos.length
       : 0;
 
-      const productosBajoStock = productos.filter(
-  (p) => p.cantidad_stock < 5
-);
+  const productosBajoStock =
+    productos.filter(
+      (p) =>
+        Number(p.cantidad_stock) < 5
+    );
 
   return (
 
     <main className="flex-1 p-8">
 
-      {/* Header */}
+      {/* HEADER */}
       <div className="mb-8">
 
         <h1 className="text-4xl font-bold">
@@ -286,7 +370,7 @@ const eliminarProducto = async (id, nombre) => {
 
       </div>
 
-      {/* Barra */}
+      {/* BARRA */}
       <div className="bg-white rounded-2xl border p-4 mb-6 flex gap-4">
 
         <div className="flex-1 relative">
@@ -300,58 +384,72 @@ const eliminarProducto = async (id, nombre) => {
             type="text"
             placeholder="Buscar productos..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
             className="w-full border rounded-xl pl-10 py-3 outline-none"
           />
 
         </div>
 
-        {productosBajoStock.length > 0 && (
+        {puedeEditar && (
 
-  <div className="bg-red-50 border border-red-200 rounded-2xl p-5 mb-6">
+          <button
+            onClick={() =>
+              setShowModal(true)
+            }
+            className="bg-pink-500 hover:bg-pink-600 text-white px-5 rounded-xl flex items-center gap-2"
+          >
 
-    <div className="flex items-start gap-3">
+            <Plus size={20} />
 
-      <Package
-        className="text-red-500 mt-1"
-        size={22}
-      />
+            Agregar Producto
 
-      <div>
+          </button>
 
-        <h3 className="font-bold text-red-700 text-lg">
-          Alertas de Inventario
-        </h3>
-
-        <p className="text-red-600 text-sm mt-1">
-
-          Hay {productosBajoStock.length}
-          producto(s) con bajo stock.
-
-        </p>
+        )}
 
       </div>
 
-    </div>
+      {/* ALERTA */}
+      {productosBajoStock.length > 0 && (
 
-  </div>
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-5 mb-6">
 
-)}
+          <div className="flex items-start gap-3">
 
-        <button
-  onClick={() => setShowModal(true)}
-  className="bg-pink-500 hover:bg-pink-600 text-white px-5 rounded-xl flex items-center gap-2"
->
-  <Plus size={20} />
-  Agregar Producto
-</button>
+            <Package
+              className="text-red-500 mt-1"
+              size={22}
+            />
 
-      </div>
+            <div>
 
-      {/* Cards */}
+              <h3 className="font-bold text-red-700 text-lg">
+                Alertas de Inventario
+              </h3>
+
+              <p className="text-red-600 text-sm mt-1">
+
+                Hay {
+                  productosBajoStock.length
+                } producto(s) con bajo stock.
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
+      {/* STATS */}
       <div className="grid grid-cols-4 gap-6 mb-6">
 
         <div className="bg-white rounded-2xl border p-6">
+
           <p className="text-gray-500 mb-2">
             Total Productos
           </p>
@@ -359,9 +457,11 @@ const eliminarProducto = async (id, nombre) => {
           <h2 className="text-5xl font-bold">
             {productos.length}
           </h2>
+
         </div>
 
         <div className="bg-white rounded-2xl border p-6">
+
           <p className="text-gray-500 mb-2">
             Unidades en Stock
           </p>
@@ -369,9 +469,11 @@ const eliminarProducto = async (id, nombre) => {
           <h2 className="text-5xl font-bold">
             {totalStock}
           </h2>
+
         </div>
 
         <div className="bg-white rounded-2xl border p-6">
+
           <p className="text-gray-500 mb-2">
             Valor Total
           </p>
@@ -379,9 +481,11 @@ const eliminarProducto = async (id, nombre) => {
           <h2 className="text-4xl font-bold">
             ${valorTotal.toFixed(2)}
           </h2>
+
         </div>
 
         <div className="bg-white rounded-2xl border p-6">
+
           <p className="text-gray-500 mb-2">
             Precio Promedio
           </p>
@@ -389,14 +493,14 @@ const eliminarProducto = async (id, nombre) => {
           <h2 className="text-4xl font-bold">
             ${promedio.toFixed(2)}
           </h2>
+
         </div>
 
       </div>
 
-      {/* Tabla + panel */}
+      {/* TABLA */}
       <div className="grid grid-cols-3 gap-6">
 
-        {/* Tabla */}
         <div className="col-span-2 bg-white rounded-2xl border overflow-hidden">
 
           <table className="w-full">
@@ -436,7 +540,8 @@ const eliminarProducto = async (id, nombre) => {
                 <tr
                   key={producto.id}
                   className={`border-b hover:bg-pink-50 transition ${
-                    selectedProducto?.id === producto.id
+                    selectedProducto?.id ===
+                    producto.id
                       ? "bg-pink-50"
                       : ""
                   }`}
@@ -457,14 +562,14 @@ const eliminarProducto = async (id, nombre) => {
                   <td className="p-4">
 
                     <span
-  className={`px-3 py-1 rounded-full text-sm ${
-    producto.cantidad_stock < 5
-      ? "bg-red-100 text-red-600"
-      : producto.cantidad_stock < 15
-      ? "bg-yellow-100 text-yellow-600"
-      : "bg-green-100 text-green-700"
-  }`}
->
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        producto.cantidad_stock < 5
+                          ? "bg-red-100 text-red-600"
+                          : producto.cantidad_stock < 15
+                          ? "bg-yellow-100 text-yellow-600"
+                          : "bg-green-100 text-green-700"
+                      }`}
+                    >
 
                       {producto.cantidad_stock} uds
 
@@ -476,32 +581,47 @@ const eliminarProducto = async (id, nombre) => {
 
                     <div className="flex gap-3">
 
-                      {/* OJO */}
                       <button
-                        onClick={() => verProducto(producto)}
+                        onClick={() =>
+                          verProducto(producto)
+                        }
                         className="text-purple-500 hover:text-purple-700"
                       >
+
                         <Eye size={20} />
+
                       </button>
 
-                      <button
-  onClick={() => editarProducto(producto)}
-  className="text-blue-500"
->
-                        <Pencil size={20} />
-                      </button>
+                      {puedeEditar && (
 
-                      <button
-  onClick={() =>
-    eliminarProducto(
-      producto.id,
-      producto.nombre
-    )
-  }
-  className="text-red-500"
->
-                        <Trash2 size={20} />
-                      </button>
+                        <>
+                          <button
+                            onClick={() =>
+                              editarProducto(producto)
+                            }
+                            className="text-blue-500"
+                          >
+
+                            <Pencil size={20} />
+
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              eliminarProducto(
+                                producto.id,
+                                producto.nombre
+                              )
+                            }
+                            className="text-red-500"
+                          >
+
+                            <Trash2 size={20} />
+
+                          </button>
+                        </>
+
+                      )}
 
                     </div>
 
@@ -550,46 +670,52 @@ const eliminarProducto = async (id, nombre) => {
               </div>
 
               <div className="space-y-6">
+
                 <div className="border-t pt-6">
 
-  <h3 className="font-bold text-lg mb-4">
-    Ingredientes Utilizados
-  </h3>
+                  <h3 className="font-bold text-lg mb-4">
+                    Ingredientes Utilizados
+                  </h3>
 
-  <div className="space-y-3">
+                  <div className="space-y-3">
 
-    {ingredientesProducto.length > 0 ? (
+                    {ingredientesProducto.length > 0 ? (
 
-  ingredientesProducto.map((ingrediente, index) => (
+                      ingredientesProducto.map(
+                        (ingrediente, index) => (
 
-    <div
-      key={index}
-      className="flex justify-between border-b pb-2"
-    >
+                          <div
+                            key={index}
+                            className="flex justify-between border-b pb-2"
+                          >
 
-      <span className="text-black font-medium">
-        {ingrediente.nombre}
-      </span>
+                            <span className="font-medium">
+                              {ingrediente.nombre}
+                            </span>
 
-      <span className="text-pink-600 font-bold">
-        {ingrediente.cantidad} {ingrediente.unidad_medida}
-      </span>
+                            <span className="text-pink-600 font-bold">
 
-    </div>
+                              {ingrediente.cantidad}{" "}
+                              {ingrediente.unidad_medida}
 
-  ))
+                            </span>
 
-) : (
+                          </div>
 
-  <p className="text-red-500">
-    No hay ingredientes cargados
-  </p>
+                        )
+                      )
 
-)}
+                    ) : (
 
-  </div>
+                      <p className="text-red-500">
+                        No hay ingredientes cargados
+                      </p>
 
-</div>
+                    )}
+
+                  </div>
+
+                </div>
 
                 <div>
 
@@ -610,7 +736,11 @@ const eliminarProducto = async (id, nombre) => {
                   </p>
 
                   <h3 className="text-4xl font-bold">
-                    {selectedProducto.cantidad_stock} unidades
+
+                    {
+                      selectedProducto.cantidad_stock
+                    } unidades
+
                   </h3>
 
                 </div>
@@ -625,98 +755,108 @@ const eliminarProducto = async (id, nombre) => {
 
       </div>
 
-{showModal && (
+      {/* MODAL */}
+      {showModal && puedeEditar && (
 
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
-    <div className="bg-white w-[500px] rounded-2xl p-8">
+          <div className="bg-white w-[500px] rounded-2xl p-8">
 
-      <h2 className="text-3xl font-bold mb-6">
-        Nuevo Producto
-      </h2>
+            <h2 className="text-3xl font-bold mb-6">
+              Nuevo Producto
+            </h2>
 
-      <div className="space-y-4">
+            <div className="space-y-4">
 
-        <input
-          type="text"
-          placeholder="Nombre"
-          value={nuevoProducto.nombre}
-          onChange={(e) =>
-            setNuevoProducto({
-              ...nuevoProducto,
-              nombre: e.target.value
-            })
-          }
-          className="w-full border rounded-xl p-3"
-        />
+              <input
+                type="text"
+                placeholder="Nombre"
+                value={nuevoProducto.nombre}
+                onChange={(e) =>
+                  setNuevoProducto({
+                    ...nuevoProducto,
+                    nombre: e.target.value
+                  })
+                }
+                className="w-full border rounded-xl p-3"
+              />
 
-        <input
-          type="number"
-          placeholder="Precio"
-          value={nuevoProducto.precio}
-          onChange={(e) =>
-            setNuevoProducto({
-              ...nuevoProducto,
-              precio: e.target.value
-            })
-          }
-          className="w-full border rounded-xl p-3"
-        />
+              <input
+                type="number"
+                placeholder="Precio"
+                value={nuevoProducto.precio}
+                onChange={(e) =>
+                  setNuevoProducto({
+                    ...nuevoProducto,
+                    precio: e.target.value
+                  })
+                }
+                className="w-full border rounded-xl p-3"
+              />
 
-        <input
-          type="number"
-          placeholder="Cantidad stock"
-          value={nuevoProducto.cantidad_stock}
-          onChange={(e) =>
-            setNuevoProducto({
-              ...nuevoProducto,
-              cantidad_stock: e.target.value
-            })
-          }
-          className="w-full border rounded-xl p-3"
-        />
+              <input
+                type="number"
+                placeholder="Cantidad stock"
+                value={
+                  nuevoProducto.cantidad_stock
+                }
+                onChange={(e) =>
+                  setNuevoProducto({
+                    ...nuevoProducto,
+                    cantidad_stock:
+                      e.target.value
+                  })
+                }
+                className="w-full border rounded-xl p-3"
+              />
 
-        <input
-  type="date"
-  value={nuevoProducto.fecha_elaboracion}
-  onChange={(e) =>
-    setNuevoProducto({
-      ...nuevoProducto,
-      fecha_elaboracion: e.target.value
-    })
-  }
-  className="w-full border rounded-xl p-3"
-/>
+              <input
+                type="date"
+                value={
+                  nuevoProducto.fecha_elaboracion
+                }
+                onChange={(e) =>
+                  setNuevoProducto({
+                    ...nuevoProducto,
+                    fecha_elaboracion:
+                      e.target.value
+                  })
+                }
+                className="w-full border rounded-xl p-3"
+              />
 
-      </div>
+            </div>
 
-      <div className="flex justify-end gap-4 mt-8">
+            <div className="flex justify-end gap-4 mt-8">
 
-        <button
-          onClick={() => setShowModal(false)}
-          className="px-5 py-3 rounded-xl border"
-        >
-          Cancelar
-        </button>
+              <button
+                onClick={() =>
+                  setShowModal(false)
+                }
+                className="px-5 py-3 rounded-xl border"
+              >
+                Cancelar
+              </button>
 
-        <button
-          onClick={agregarProducto}
-          className="bg-pink-500 hover:bg-pink-600 text-white px-5 py-3 rounded-xl"
-        >
-          Guardar
-        </button>
+              <button
+                onClick={agregarProducto}
+                className="bg-pink-500 hover:bg-pink-600 text-white px-5 py-3 rounded-xl"
+              >
+                Guardar
+              </button>
 
-      </div>
+            </div>
 
-    </div>
+          </div>
 
-  </div>
+        </div>
 
-)}
+      )}
 
     </main>
 
   );
+
 }
 
 export default Productos;

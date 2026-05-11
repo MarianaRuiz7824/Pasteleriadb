@@ -32,6 +32,11 @@ function Clientes() {
 
   });
 
+  const rol = localStorage.getItem("rol");
+
+  const puedeEditar =
+    rol === "admin";
+
   useEffect(() => {
 
     obtenerClientes();
@@ -43,16 +48,23 @@ function Clientes() {
     try {
 
       const res = await fetch(
-        "http://localhost:3000/clientes"
+        "http://localhost:3000/clientes",
+        {
+          headers: {
+            rol: localStorage.getItem("rol")
+          }
+        }
       );
 
       const data = await res.json();
 
-      setClientes(data);
+      setClientes(Array.isArray(data) ? data : []);
 
     } catch (error) {
 
       console.log(error);
+
+      setClientes([]);
 
     }
 
@@ -62,14 +74,15 @@ function Clientes() {
 
     try {
 
-      await fetch(
+      const res = await fetch(
         "http://localhost:3000/clientes",
         {
 
           method: "POST",
 
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            rol: localStorage.getItem("rol")
           },
 
           body: JSON.stringify({
@@ -83,6 +96,14 @@ function Clientes() {
 
         }
       );
+
+      if (!res.ok) {
+
+        alert("No tienes permisos");
+
+        return;
+
+      }
 
       obtenerClientes();
 
@@ -102,14 +123,15 @@ function Clientes() {
 
     try {
 
-      await fetch(
+      const res = await fetch(
         `http://localhost:3000/clientes/${nuevoCliente.id}`,
         {
 
           method: "PUT",
 
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            rol: localStorage.getItem("rol")
           },
 
           body: JSON.stringify({
@@ -123,6 +145,14 @@ function Clientes() {
 
         }
       );
+
+      if (!res.ok) {
+
+        alert("No tienes permisos");
+
+        return;
+
+      }
 
       obtenerClientes();
 
@@ -150,12 +180,26 @@ function Clientes() {
 
     try {
 
-      await fetch(
+      const res = await fetch(
         `http://localhost:3000/clientes/${id}`,
         {
-          method: "DELETE"
+
+          method: "DELETE",
+
+          headers: {
+            rol: localStorage.getItem("rol")
+          }
+
         }
       );
+
+      if (!res.ok) {
+
+        alert("No tienes permisos");
+
+        return;
+
+      }
 
       obtenerClientes();
 
@@ -168,6 +212,8 @@ function Clientes() {
   };
 
   const abrirEditar = (cliente) => {
+
+    if (!puedeEditar) return;
 
     setNuevoCliente(cliente);
 
@@ -257,95 +303,108 @@ function Clientes() {
 
         </button>
 
-        <button
-          onClick={() => {
+        {puedeEditar && (
 
-            limpiarFormulario();
+          <button
+            onClick={() => {
 
-            setEditando(false);
+              limpiarFormulario();
 
-            setShowModal(true);
+              setEditando(false);
 
-          }}
-          className="bg-purple-500 hover:bg-purple-600 text-white px-5 rounded-xl flex items-center gap-2"
-        >
+              setShowModal(true);
 
-          <Plus size={20} />
+            }}
+            className="bg-purple-500 hover:bg-purple-600 text-white px-5 rounded-xl flex items-center gap-2"
+          >
 
-          Agregar Cliente
+            <Plus size={20} />
 
-        </button>
+            Agregar Cliente
+
+          </button>
+
+        )}
 
       </div>
 
-      {/* CARDS */}
+      {/* ESTADISTICAS */}
       <div className="grid grid-cols-4 gap-6 mb-6">
 
-  {/* TOTAL CLIENTES */}
-  <div className="bg-white rounded-2xl border p-6">
+        {/* TOTAL CLIENTES */}
+        <div className="bg-white rounded-2xl border p-6">
 
-    <p className="text-gray-500 mb-2">
-      Total Clientes
-    </p>
+          <p className="text-gray-500 mb-2">
+            Total Clientes
+          </p>
 
-    <h2 className="text-5xl font-bold">
-      {clientes.length}
-    </h2>
+          <h2 className="text-5xl font-bold">
+            {clientes.length}
+          </h2>
 
-  </div>
+        </div>
 
-  {/* TOTAL PEDIDOS */}
-  <div className="bg-white rounded-2xl border p-6">
+        {/* TOTAL PEDIDOS */}
+        <div className="bg-white rounded-2xl border p-6">
 
-    <p className="text-gray-500 mb-2">
-      Total Pedidos
-    </p>
+          <p className="text-gray-500 mb-2">
+            Total Pedidos
+          </p>
 
-    <h2 className="text-5xl font-bold">
-      {clientes.reduce(
-        (acc, cliente) =>
-          acc + Number(cliente.total_pedidos || 0),
-        0
-      )}
-    </h2>
-
-  </div>
-
-  {/* PEDIDOS POR CLIENTE */}
-  <div className="bg-white rounded-2xl border p-6">
-
-    <p className="text-gray-500 mb-2">
-      Pedidos por Cliente
-    </p>
-
-    <h2 className="text-5xl font-bold">
-      {clientes.length > 0
-        ? (
-            clientes.reduce(
+          <h2 className="text-5xl font-bold">
+            {clientes.reduce(
               (acc, cliente) =>
                 acc + Number(cliente.total_pedidos || 0),
               0
-            ) / clientes.length
-          ).toFixed(1)
-        : 0}
-    </h2>
+            )}
+          </h2>
 
-  </div>
+        </div>
 
-  {/* CLIENTES ACTIVOS */}
-  <div className="bg-white rounded-2xl border p-6">
+        {/* PEDIDOS POR CLIENTE */}
+        <div className="bg-white rounded-2xl border p-6">
 
-    <p className="text-gray-500 mb-2">
-      Clientes Activos
-    </p>
+          <p className="text-gray-500 mb-2">
+            Pedidos por Cliente
+          </p>
 
-    <h2 className="text-5xl font-bold text-green-500">
-      {clientes.length}
-    </h2>
+          <h2 className="text-5xl font-bold">
 
-  </div>
+            {clientes.length > 0
 
-</div>
+              ? (
+
+                  clientes.reduce(
+
+                    (acc, cliente) =>
+                      acc + Number(cliente.total_pedidos || 0),
+
+                    0
+
+                  ) / clientes.length
+
+                ).toFixed(1)
+
+              : "0.0"}
+
+          </h2>
+
+        </div>
+
+        {/* CLIENTES ACTIVOS */}
+        <div className="bg-white rounded-2xl border p-6">
+
+          <p className="text-gray-500 mb-2">
+            Clientes Activos
+          </p>
+
+          <h2 className="text-5xl font-bold text-green-500">
+            {clientes.length}
+          </h2>
+
+        </div>
+
+      </div>
 
       {/* CARDS CLIENTES */}
       <div className="grid grid-cols-3 gap-6">
@@ -410,7 +469,17 @@ function Clientes() {
 
             </div>
 
-            <div className="border-t mt-6 pt-4">
+            <div className="border-t mt-6 pt-4 space-y-2">
+
+              <div className="flex justify-between">
+
+                <span>Total pedidos</span>
+
+                <span className="font-bold">
+                  {cliente.total_pedidos || 0}
+                </span>
+
+              </div>
 
               <div className="flex justify-between">
 
@@ -424,35 +493,39 @@ function Clientes() {
 
             </div>
 
-            <div className="flex gap-4 mt-6">
+            {puedeEditar && (
 
-              <button
-                onClick={() =>
-                  abrirEditar(cliente)
-                }
-                className="flex-1 border border-purple-500 text-purple-500 hover:bg-purple-50 py-3 rounded-xl flex justify-center items-center gap-2"
-              >
+              <div className="flex gap-4 mt-6">
 
-                <Pencil size={18} />
+                <button
+                  onClick={() =>
+                    abrirEditar(cliente)
+                  }
+                  className="flex-1 border border-purple-500 text-purple-500 hover:bg-purple-50 py-3 rounded-xl flex justify-center items-center gap-2"
+                >
 
-                Editar
+                  <Pencil size={18} />
 
-              </button>
+                  Editar
 
-              <button
-                onClick={() =>
-                  eliminarCliente(cliente.id)
-                }
-                className="flex-1 border border-red-500 text-red-500 hover:bg-red-50 py-3 rounded-xl flex justify-center items-center gap-2"
-              >
+                </button>
 
-                <Trash2 size={18} />
+                <button
+                  onClick={() =>
+                    eliminarCliente(cliente.id)
+                  }
+                  className="flex-1 border border-red-500 text-red-500 hover:bg-red-50 py-3 rounded-xl flex justify-center items-center gap-2"
+                >
 
-                Eliminar
+                  <Trash2 size={18} />
 
-              </button>
+                  Eliminar
 
-            </div>
+                </button>
+
+              </div>
+
+            )}
 
           </div>
 
@@ -600,6 +673,7 @@ function Clientes() {
                   <th className="border p-3">Edad</th>
                   <th className="border p-3">Teléfono</th>
                   <th className="border p-3">Email</th>
+                  <th className="border p-3">Pedidos</th>
                   <th className="border p-3">Fecha Alta</th>
 
                 </tr>
@@ -630,6 +704,10 @@ function Clientes() {
 
                     <td className="border p-3">
                       {cliente.email}
+                    </td>
+
+                    <td className="border p-3">
+                      {cliente.total_pedidos || 0}
                     </td>
 
                     <td className="border p-3">

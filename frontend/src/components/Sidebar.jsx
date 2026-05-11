@@ -1,101 +1,196 @@
-import { Link } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
-  Wrench,
-  ShoppingBag,
-  ShoppingCart,
+  ClipboardList,
   Users,
-  UserRound
+  ChefHat,
+  ShoppingCart,
+  LogOut
 } from "lucide-react";
+
+import { Link, useNavigate } from "react-router-dom";
 
 function Sidebar() {
 
+  const navigate = useNavigate();
+
+  const rol = localStorage.getItem("rol");
+
+  const cerrarSesion = () => {
+
+    localStorage.removeItem("rol");
+
+    navigate("/login");
+
+  };
+
   return (
 
-    <aside className="w-64 bg-white border-r min-h-screen flex flex-col justify-between">
+    <>
+    
+      {/* PANEL FLOTANTE */}
+      <div className="fixed top-5 right-5 z-50">
 
-      <div>
+        <div className="bg-white shadow-xl border rounded-2xl p-4 w-[240px]">
 
-        <div className="p-6">
+          <p className="font-bold text-lg capitalize">
+            {rol}
+          </p>
+
+          <p className="text-gray-500 text-sm mb-4">
+            Sesión activa
+          </p>
+
+          <button
+            onClick={cerrarSesion}
+            className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl flex items-center justify-center gap-2"
+          >
+
+            <LogOut size={18} />
+
+            Cerrar Sesión
+
+          </button>
+
+        </div>
+
+      </div>
+
+      {/* SIDEBAR */}
+      <aside className="w-72 bg-white border-r min-h-screen p-6">
+
+        {/* LOGO */}
+        <div className="mb-10">
 
           <h1 className="text-3xl font-bold text-pink-500">
             Pastelería
           </h1>
 
-          <p className="text-gray-500 text-sm">
-            Sistema de Gestión
+          <p className="text-gray-500 mt-1">
+            Sistema Administrativo
           </p>
 
         </div>
 
-        <nav className="px-4 space-y-2">
+        {/* MENU */}
+        <nav className="space-y-3">
 
+          {/* DASHBOARD */}
           <Link
-  to="/"
-  className="flex items-center gap-3 bg-pink-100 text-pink-600 p-3 rounded-xl"
->
+            to="/"
+            className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"
+          >
 
-  <LayoutDashboard size={20} />
+            <LayoutDashboard size={20} />
 
-  Dashboard
-
-</Link>
-
-          <Link
-      to="/ingredientes"
-      className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer"
-    >
-
-      <Package size={20} />
-
-      Ingredientes
+            Dashboard
 
           </Link>
 
-          <Link to="/productos" className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer" >
+          {/* PRODUCTOS */}
+          {[
+            "admin",
+            "empleado_inventario",
+            "empleado_normal",
+            "cliente",
+            "empleado_ventas"
+          ].includes(rol) && (
 
-          <ShoppingBag size={20} />
+            <Link
+              to="/productos"
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"
+            >
 
-            Productos
+              <Package size={20} />
 
-          </Link>
+              Productos
 
-          <Link to="/pedidos"
-  className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer"
->
+            </Link>
 
-  <ShoppingCart size={20} />
+          )}
 
-  Pedidos
+          {/* INGREDIENTES */}
+          {[
+            "admin",
+            "empleado_inventario"
+          ].includes(rol) && (
 
-</Link>
+            <Link
+              to="/ingredientes"
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"
+            >
 
-          <Link
-  to="/empleados"
-  className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"
-><UserRound size={20} />
-  Empleados
-</Link>
+              <ChefHat size={20} />
 
-          <Link
-  to="/clientes"
-  className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer"
->
-  <Users size={20} />
-  Clientes
-</Link>
+              Ingredientes
+
+            </Link>
+
+          )}
+
+          {/* PEDIDOS */}
+          {[
+            "admin",
+            "empleado_ventas"
+          ].includes(rol) && (
+
+            <Link
+              to="/pedidos"
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"
+            >
+
+              <ClipboardList size={20} />
+
+              Pedidos
+
+            </Link>
+
+          )}
+
+          {/* CLIENTES */}
+          {[
+            "admin",
+            "empleado_ventas",
+            "empleado_normal"
+          ].includes(rol) && (
+
+            <Link
+              to="/clientes"
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"
+            >
+
+              <ShoppingCart size={20} />
+
+              Clientes
+
+            </Link>
+
+          )}
+
+          {/* EMPLEADOS */}
+          {rol === "admin" && (
+
+            <Link
+              to="/empleados"
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"
+            >
+
+              <Users size={20} />
+
+              Empleados
+
+            </Link>
+
+          )}
+
         </nav>
 
-      </div>
+      </aside>
 
-      <div className="p-6 text-gray-400 text-sm">
-        © 2026 Pastelería Sistema
-      </div>
-
-    </aside>
+    </>
 
   );
+
 }
 
 export default Sidebar;

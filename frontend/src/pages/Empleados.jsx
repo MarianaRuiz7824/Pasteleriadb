@@ -29,6 +29,8 @@ function Empleados() {
 
   });
 
+  const rol = localStorage.getItem("rol");
+
   useEffect(() => {
 
     obtenerEmpleados();
@@ -37,13 +39,28 @@ function Empleados() {
 
   const obtenerEmpleados = async () => {
 
-    const res = await fetch(
-      "http://localhost:3000/empleados"
-    );
+    try {
 
-    const data = await res.json();
+      const res = await fetch(
+        "http://localhost:3000/empleados",
+        {
+          headers: {
+            rol: rol
+          }
+        }
+      );
 
-    setEmpleados(data);
+      const data = await res.json();
+
+      setEmpleados(Array.isArray(data) ? data : []);
+
+    } catch (error) {
+
+      console.log(error);
+
+      setEmpleados([]);
+
+    }
 
   };
 
@@ -58,7 +75,8 @@ function Empleados() {
           method: "POST",
 
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            rol: rol
           },
 
           body: JSON.stringify({
@@ -102,7 +120,8 @@ function Empleados() {
           method: "PUT",
 
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            rol: rol
           },
 
           body: JSON.stringify({
@@ -150,7 +169,13 @@ function Empleados() {
       await fetch(
         `http://localhost:3000/empleados/${id}`,
         {
-          method: "DELETE"
+
+          method: "DELETE",
+
+          headers: {
+            rol: rol
+          }
+
         }
       );
 
@@ -191,19 +216,19 @@ function Empleados() {
 
   const filteredEmpleados = Array.isArray(empleados)
 
-  ? empleados.filter((empleado) =>
+    ? empleados.filter((empleado) =>
 
-      (empleado.nombre || "")
-        .toLowerCase()
-        .includes(search.toLowerCase()) ||
+        (empleado.nombre || "")
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
 
-      (empleado.posicion || "")
-        .toLowerCase()
-        .includes(search.toLowerCase())
+        (empleado.posicion || "")
+          .toLowerCase()
+          .includes(search.toLowerCase())
 
-    )
+      )
 
-  : [];
+    : [];
 
   return (
 
@@ -244,24 +269,28 @@ function Empleados() {
 
         </div>
 
-        <button
-          onClick={() => {
+        {rol === "admin" && (
 
-            limpiarFormulario();
+          <button
+            onClick={() => {
 
-            setEditando(false);
+              limpiarFormulario();
 
-            setShowModal(true);
+              setEditando(false);
 
-          }}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-5 rounded-xl flex items-center gap-2"
-        >
+              setShowModal(true);
 
-          <Plus size={20} />
+            }}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-5 rounded-xl flex items-center gap-2"
+          >
 
-          Agregar Empleado
+            <Plus size={20} />
 
-        </button>
+            Agregar Empleado
+
+          </button>
+
+        )}
 
       </div>
 
@@ -352,35 +381,39 @@ function Empleados() {
 
             </div>
 
-            <div className="flex gap-4 mt-6">
+            {rol === "admin" && (
 
-              <button
-                onClick={() =>
-                  abrirEditar(empleado)
-                }
-                className="flex-1 border border-blue-500 text-blue-500 hover:bg-blue-50 py-3 rounded-xl flex justify-center items-center gap-2"
-              >
+              <div className="flex gap-4 mt-6">
 
-                <Pencil size={18} />
+                <button
+                  onClick={() =>
+                    abrirEditar(empleado)
+                  }
+                  className="flex-1 border border-blue-500 text-blue-500 hover:bg-blue-50 py-3 rounded-xl flex justify-center items-center gap-2"
+                >
 
-                Editar
+                  <Pencil size={18} />
 
-              </button>
+                  Editar
 
-              <button
-                onClick={() =>
-                  eliminarEmpleado(empleado.id)
-                }
-                className="flex-1 border border-red-500 text-red-500 hover:bg-red-50 py-3 rounded-xl flex justify-center items-center gap-2"
-              >
+                </button>
 
-                <Trash2 size={18} />
+                <button
+                  onClick={() =>
+                    eliminarEmpleado(empleado.id)
+                  }
+                  className="flex-1 border border-red-500 text-red-500 hover:bg-red-50 py-3 rounded-xl flex justify-center items-center gap-2"
+                >
 
-                Eliminar
+                  <Trash2 size={18} />
 
-              </button>
+                  Eliminar
 
-            </div>
+                </button>
+
+              </div>
+
+            )}
 
           </div>
 
@@ -389,7 +422,7 @@ function Empleados() {
       </div>
 
       {/* MODAL */}
-      {showModal && (
+      {showModal && rol === "admin" && (
 
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
