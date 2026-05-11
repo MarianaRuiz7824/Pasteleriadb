@@ -1,0 +1,7 @@
+// requerimientos
+npm install express
+npm install pg
+npm install cors
+npm install react
+npm install lucide-react
+npm install tailwindcss
