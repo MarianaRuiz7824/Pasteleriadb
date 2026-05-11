@@ -330,7 +330,7 @@ function Ingredientes() {
       </div>
 
       {/* BARRA */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm border mb-6 flex items-center justify-between gap-4">
+      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200/90 mb-6 flex items-center justify-between gap-4">
 
         <div className="relative flex-1">
 
@@ -348,7 +348,7 @@ function Ingredientes() {
                 e.target.value
               )
             }
-            className="w-full border rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-pink-400"
+            className="w-full border border-gray-200/90 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-pink-400"
           />
 
         </div>
@@ -410,11 +410,11 @@ function Ingredientes() {
       )}
 
       {/* TABLA */}
-      <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200/90 overflow-hidden">
 
         <table className="w-full">
 
-          <thead className="bg-gray-50 border-b">
+          <thead className="bg-gray-50 border-b border-gray-200/90">
 
             <tr className="text-gray-700 text-sm">
 
@@ -465,7 +465,7 @@ function Ingredientes() {
 
                 <tr
                   key={ingrediente.id}
-                  className="border-b hover:bg-gray-50 transition"
+                  className="border-b border-gray-200/90 hover:bg-gray-50 transition"
                 >
 
                   <td className="p-5">
@@ -620,7 +620,7 @@ function Ingredientes() {
       </div>
 
       {/* FOOTER */}
-      <div className="bg-white border rounded-2xl p-5 mt-6 flex justify-between text-gray-700">
+      <div className="bg-white border border-gray-200/90 rounded-2xl p-5 mt-6 flex justify-between text-gray-700">
 
         <p>
 

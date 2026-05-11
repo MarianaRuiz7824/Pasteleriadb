@@ -91,11 +91,11 @@ function Dashboard() {
 
               <thead>
 
-                <tr className="text-left border-b">
+                <tr className="text-left border-b border-gray-200/100">
 
-                  <th className="pb-3">Nombre</th>
-                  <th className="pb-3">Precio</th>
-                  <th className="pb-3">Estado</th>
+                  <th className="pb-4">Nombre</th>
+                  <th className="pb-4">Precio</th>
+                  <th className="pb-4">Estado</th>
 
                 </tr>
 
@@ -107,7 +107,7 @@ function Dashboard() {
 
                   <tr
                     key={producto.id}
-                    className="border-b"
+                    className="border-b border-gray-200/100"
                   >
 
                     <td className="py-3">
@@ -157,11 +157,11 @@ function Dashboard() {
 
               <thead>
 
-                <tr className="text-left border-b">
+                <tr className="text-left border-b border-gray-200/100">
 
-                  <th className="pb-3">Ingrediente</th>
-                  <th className="pb-3">Cantidad</th>
-                  <th className="pb-3">Estado</th>
+                  <th className="pb-4">Ingrediente</th>
+                  <th className="pb-4">Cantidad</th>
+                  <th className="pb-4">Estado</th>
 
                 </tr>
 
@@ -173,7 +173,7 @@ function Dashboard() {
 
                   <tr
                     key={ingrediente.id}
-                    className="border-b"
+                    className="border-b border-gray-200/100"
                   >
 
                     <td className="py-3">

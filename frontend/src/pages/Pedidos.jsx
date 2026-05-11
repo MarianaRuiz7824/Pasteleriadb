@@ -202,7 +202,7 @@ const agregarPedido = async () => {
       </div>
 
       {/* BARRA */}
-      <div className="bg-white rounded-2xl border p-4 mb-6 flex gap-4">
+      <div className="bg-white rounded-2xl border border-gray-200/90 p-4 mb-6 flex gap-4">
 
         <div className="flex-1 relative">
 
@@ -216,7 +216,7 @@ const agregarPedido = async () => {
             placeholder="Buscar pedidos por cliente o ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full border rounded-xl pl-10 py-3 outline-none"
+            className="w-full border border-gray-200/90 rounded-xl pl-10 py-3 outline-none"
           />
 
         </div>
@@ -237,7 +237,7 @@ const agregarPedido = async () => {
       {/* CARDS */}
       <div className="grid grid-cols-4 gap-6 mb-6">
 
-        <div className="bg-white rounded-2xl border p-6">
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
           <p className="text-gray-500 mb-2">
             Total Pedidos
@@ -249,7 +249,7 @@ const agregarPedido = async () => {
 
         </div>
 
-        <div className="bg-white rounded-2xl border p-6">
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
           <p className="text-gray-500 mb-2">
             Pendientes
@@ -261,7 +261,7 @@ const agregarPedido = async () => {
 
         </div>
 
-        <div className="bg-white rounded-2xl border p-6">
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
           <p className="text-gray-500 mb-2">
             Entregados
@@ -273,7 +273,7 @@ const agregarPedido = async () => {
 
         </div>
 
-        <div className="bg-white rounded-2xl border p-6">
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
           <p className="text-gray-500 mb-2">
             Valor Total
@@ -291,11 +291,11 @@ const agregarPedido = async () => {
       <div className="grid grid-cols-3 gap-6">
 
         {/* TABLA */}
-        <div className="col-span-2 bg-white rounded-2xl border overflow-hidden">
+        <div className="col-span-2 bg-white rounded-2xl border border-gray-200/90 overflow-hidden">
 
           <table className="w-full">
 
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-50 border-b border-gray-200/90">
 
               <tr>
 
@@ -337,7 +337,7 @@ const agregarPedido = async () => {
 
                 <tr
                   key={pedido.id}
-                  className={`border-b hover:bg-green-50 transition ${
+                  className={`border-b border-gray-200/90 hover:bg-green-50 transition ${
                     selectedPedido?.id === pedido.id
                       ? "bg-green-50"
                       : ""
@@ -414,7 +414,7 @@ const agregarPedido = async () => {
         {/* PANEL DERECHO */}
         {selectedPedido && (
 
-          <div className="bg-white rounded-2xl border p-6">
+          <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
             <div className="flex items-center gap-4 mb-6">
 

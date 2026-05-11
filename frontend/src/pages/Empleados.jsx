@@ -248,7 +248,7 @@ function Empleados() {
       </div>
 
       {/* BARRA */}
-      <div className="bg-white rounded-2xl border p-4 mb-6 flex gap-4">
+      <div className="bg-white rounded-2xl border border-gray-200/90 p-4 mb-6 flex gap-4">
 
         <div className="flex-1 relative">
 
@@ -264,7 +264,7 @@ function Empleados() {
             onChange={(e) =>
               setSearch(e.target.value)
             }
-            className="w-full border rounded-xl pl-10 py-3 outline-none"
+            className="w-full border border-gray-200/90 rounded-xl pl-10 py-3 outline-none"
           />
 
         </div>
@@ -301,7 +301,7 @@ function Empleados() {
 
           <div
             key={empleado.id}
-            className="bg-white rounded-2xl border p-6"
+            className="bg-white rounded-2xl border border-gray-200/90 p-6"
           >
 
             <div className="flex items-center gap-4 mb-6">
@@ -349,7 +349,7 @@ function Empleados() {
 
             </div>
 
-            <div className="border-t mt-6 pt-4 space-y-2">
+            <div className="border-t border-gray-200/90 mt-6 pt-4 space-y-2">
 
               <div className="flex justify-between">
 

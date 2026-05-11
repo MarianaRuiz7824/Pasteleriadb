@@ -271,7 +271,7 @@ function Clientes() {
       </div>
 
       {/* BARRA */}
-      <div className="bg-white rounded-2xl border p-4 mb-6 flex gap-4">
+      <div className="bg-white rounded-2xl border border-gray-200/90 p-4 mb-6 flex gap-4">
 
         <div className="flex-1 relative">
 
@@ -287,7 +287,7 @@ function Clientes() {
             onChange={(e) =>
               setSearch(e.target.value)
             }
-            className="w-full border rounded-xl pl-10 py-3 outline-none"
+            className="w-full border border-gray-200/90 rounded-xl pl-10 py-3 outline-none"
           />
 
         </div>
@@ -332,7 +332,7 @@ function Clientes() {
       <div className="grid grid-cols-4 gap-6 mb-6">
 
         {/* TOTAL CLIENTES */}
-        <div className="bg-white rounded-2xl border p-6">
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
           <p className="text-gray-500 mb-2">
             Total Clientes
@@ -345,7 +345,7 @@ function Clientes() {
         </div>
 
         {/* TOTAL PEDIDOS */}
-        <div className="bg-white rounded-2xl border p-6">
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
           <p className="text-gray-500 mb-2">
             Total Pedidos
@@ -362,7 +362,7 @@ function Clientes() {
         </div>
 
         {/* PEDIDOS POR CLIENTE */}
-        <div className="bg-white rounded-2xl border p-6">
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
           <p className="text-gray-500 mb-2">
             Pedidos por Cliente
@@ -392,7 +392,7 @@ function Clientes() {
         </div>
 
         {/* CLIENTES ACTIVOS */}
-        <div className="bg-white rounded-2xl border p-6">
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
           <p className="text-gray-500 mb-2">
             Clientes Activos
@@ -413,7 +413,7 @@ function Clientes() {
 
           <div
             key={cliente.id}
-            className="bg-white rounded-2xl border p-6"
+            className="bg-white rounded-2xl border border-gray-200/90 p-6"
           >
 
             <div className="flex items-center gap-4 mb-6">
@@ -469,7 +469,7 @@ function Clientes() {
 
             </div>
 
-            <div className="border-t mt-6 pt-4 space-y-2">
+            <div className="border-t border-gray-200/90 mt-6 pt-4 space-y-2">
 
               <div className="flex justify-between">
 

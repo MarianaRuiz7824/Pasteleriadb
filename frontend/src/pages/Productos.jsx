@@ -371,7 +371,7 @@ function Productos() {
       </div>
 
       {/* BARRA */}
-      <div className="bg-white rounded-2xl border p-4 mb-6 flex gap-4">
+      <div className="bg-white rounded-2xl border border-gray-200/90 p-4 mb-6 flex gap-4">
 
         <div className="flex-1 relative">
 
@@ -387,7 +387,7 @@ function Productos() {
             onChange={(e) =>
               setSearch(e.target.value)
             }
-            className="w-full border rounded-xl pl-10 py-3 outline-none"
+            className="w-full border border-gray-200/90 rounded-xl pl-10 py-3 outline-none"
           />
 
         </div>
@@ -448,7 +448,7 @@ function Productos() {
       {/* STATS */}
       <div className="grid grid-cols-4 gap-6 mb-6">
 
-        <div className="bg-white rounded-2xl border p-6">
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
           <p className="text-gray-500 mb-2">
             Total Productos
@@ -460,7 +460,7 @@ function Productos() {
 
         </div>
 
-        <div className="bg-white rounded-2xl border p-6">
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
           <p className="text-gray-500 mb-2">
             Unidades en Stock
@@ -472,7 +472,7 @@ function Productos() {
 
         </div>
 
-        <div className="bg-white rounded-2xl border p-6">
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
           <p className="text-gray-500 mb-2">
             Valor Total
@@ -484,7 +484,7 @@ function Productos() {
 
         </div>
 
-        <div className="bg-white rounded-2xl border p-6">
+        <div className="bg-white rounded-2xl border border-gray-200/90 p-6">
 
           <p className="text-gray-500 mb-2">
             Precio Promedio
@@ -501,11 +501,11 @@ function Productos() {
       {/* TABLA */}
       <div className="grid grid-cols-3 gap-6">
 
-        <div className="col-span-2 bg-white rounded-2xl border overflow-hidden">
+        <div className="col-span-2 bg-white rounded-2xl border border-gray-200/90 overflow-hidden">
 
           <table className="w-full">
 
-            <thead className="border-b bg-gray-50">
+            <thead className="border-b border-gray-200/90 bg-gray-50">
 
               <tr>
 
@@ -539,7 +539,7 @@ function Productos() {
 
                 <tr
                   key={producto.id}
-                  className={`border-b hover:bg-pink-50 transition ${
+                  className={`border-b border-gray-200/90 hover:bg-pink-50 transition ${
                     selectedProducto?.id ===
                     producto.id
                       ? "bg-pink-50"
@@ -686,7 +686,7 @@ function Productos() {
 
                           <div
                             key={index}
-                            className="flex justify-between border-b pb-2"
+                            className="flex justify-between border-b border-gray-200/90 pb-2"
                           >
 
                             <span className="font-medium">
