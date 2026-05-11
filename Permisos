@@ -1,0 +1,46 @@
+create role admin;
+grant all privileges on all tables in schema public to admin;
+
+create role empleado_ventas;
+grant select, insert on Pedidos, Pedidos_Productos to empleado_ventas;
+grant select on Productos to empleado_ventas;
+grant select on Clientes to empleado_ventas;
+
+create role empleado_inventario;
+grant select, update on Ingredientes, Productos to empleado_inventario;
+
+create role empleado_normal;
+grant select on Personas, Clientes, Productos to empleado_normal;
+
+create role cliente;
+grant select on Productos to cliente;
+
+
+////// Permisos para permisos ///////
+-- ADMIN
+create user admin_user with password '1234';
+grant admin to admin_user;
+
+-- EMPLEADO VENTAS
+create user ventas_user with password '1234';
+grant empleado_ventas to ventas_user;
+
+-- INVENTARIO
+create user inventario_user with password '1234';
+grant empleado_inventario to inventario_user;
+
+-- EMPLEADO NORMAL
+create user normal_user with password '1234';
+grant empleado_normal to normal_user;
+
+-- CLIENTE
+create user cliente_user with password '1234';
+grant cliente to cliente_user;
+
+
+///// permisos de permisos 2 /////
+grant usage, select on all sequences in schema public to admin;
+grant usage, select on all sequences in schema public to empleado_ventas;
+grant usage, select on all sequences in schema public to empleado_inventario;
+grant usage, select on all sequences in schema public to empleado_normal;
+grant usage, select on all sequences in schema public to cliente;
