@@ -1,0 +1,16 @@
+create or replace function calcular_total_de_pedido(id_pedido_ int)
+returns decimal(8,2) as
+$$
+declare
+  total decimal(8,2);
+begin
+  select sum(pp.cantidad * pr.precio)
+  into total
+  from Pedidos_Productos pp
+  join Productos pr on pr.id = pp.id_producto
+  where pp.id_pedido = id_pedido_;
+
+  return total;
+end;
+$$
+language plpgsql;
