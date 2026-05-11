@@ -1,10 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Sidebar from "./components/Sidebar";
+
 import Dashboard from "./pages/Dashboard";
 import Ingredientes from "./pages/Ingredientes";
 import Productos from "./pages/Productos";
 import Pedidos from "./pages/Pedidos";
-
+import Empleados from "./pages/Empleados";
+import Clientes from "./pages/Clientes";
 
 function App() {
 
@@ -18,14 +21,32 @@ function App() {
 
         <Routes>
 
+          <Route path="/" element={<Dashboard />} />
+
           <Route
-            path="/"
-            element={<Dashboard />}
+            path="/ingredientes"
+            element={<Ingredientes />}
           />
 
-          <Route path="/ingredientes" element={<Ingredientes />} />
-          <Route path="/productos" element={<Productos />} />
-          <Route path="/pedidos" element={<Pedidos />} />
+          <Route
+            path="/productos"
+            element={<Productos />}
+          />
+
+          <Route
+            path="/pedidos"
+            element={<Pedidos />}
+          />
+
+          <Route
+            path="/empleados"
+            element={<Empleados />}
+          />
+
+          <Route
+            path="/clientes"
+            element={<Clientes />}
+          />
 
         </Routes>
 
@@ -34,6 +55,7 @@ function App() {
     </BrowserRouter>
 
   );
+
 }
 
 export default App;

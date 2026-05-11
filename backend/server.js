@@ -561,6 +561,476 @@ app.get("/pedidos/:id/productos", async (req, res) => {
 });
 
 /* ======================================================
+   EMPLEADOS
+====================================================== */
+
+app.get("/empleados", async (req, res) => {
+
+  try {
+
+    const result = await pool.query(`
+
+      SELECT
+        empleados.id,
+        personas.nombre,
+        personas.edad,
+        personas.telefono,
+        personas.email,
+        personas.fecha_alta,
+        empleados.posicion,
+        empleados.salario_mensual
+
+      FROM empleados
+
+      INNER JOIN personas
+      ON personas.id = empleados.id
+
+      ORDER BY empleados.id
+
+    `);
+
+    res.json(result.rows);
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      error: error.message
+    });
+
+  }
+
+});
+
+
+/* ======================================================
+   AGREGAR EMPLEADO
+====================================================== */
+
+app.post("/empleados", async (req, res) => {
+
+  try {
+
+    const {
+      nombre,
+      edad,
+      telefono,
+      email,
+      posicion,
+      salario_mensual
+    } = req.body;
+
+    // INSERTAR EN PERSONAS
+    const personaResult = await pool.query(
+
+      `
+      INSERT INTO personas
+      (
+        nombre,
+        edad,
+        telefono,
+        email
+      )
+
+      VALUES ($1,$2,$3,$4)
+
+      RETURNING *
+      `,
+
+      [
+        nombre,
+        edad,
+        telefono,
+        email
+      ]
+
+    );
+
+    const persona = personaResult.rows[0];
+
+    // INSERTAR EN EMPLEADOS
+    const empleadoResult = await pool.query(
+
+      `
+      INSERT INTO empleados
+      (
+        id,
+        posicion,
+        salario_mensual
+      )
+
+      VALUES ($1,$2,$3)
+
+      RETURNING *
+      `,
+
+      [
+        persona.id,
+        posicion,
+        salario_mensual
+      ]
+
+    );
+
+    res.json({
+      persona,
+      empleado: empleadoResult.rows[0]
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      error: error.message
+    });
+
+  }
+
+});
+
+
+/* ======================================================
+   EDITAR EMPLEADO
+====================================================== */
+
+app.put("/empleados/:id", async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+
+    const {
+      nombre,
+      edad,
+      telefono,
+      email,
+      posicion,
+      salario_mensual
+    } = req.body;
+
+    // ACTUALIZAR PERSONA
+    await pool.query(
+
+      `
+      UPDATE personas
+      SET
+        nombre = $1,
+        edad = $2,
+        telefono = $3,
+        email = $4
+
+      WHERE id = $5
+      `,
+
+      [
+        nombre,
+        edad,
+        telefono,
+        email,
+        id
+      ]
+
+    );
+
+    // ACTUALIZAR EMPLEADO
+    await pool.query(
+
+      `
+      UPDATE empleados
+      SET
+        posicion = $1,
+        salario_mensual = $2
+
+      WHERE id = $3
+      `,
+
+      [
+        posicion,
+        salario_mensual,
+        id
+      ]
+
+    );
+
+    res.json({
+      mensaje: "Empleado actualizado"
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      error: error.message
+    });
+
+  }
+
+});
+
+
+/* ======================================================
+   ELIMINAR EMPLEADO
+====================================================== */
+
+app.delete("/empleados/:id", async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+
+    // Eliminar empleado
+    await pool.query(
+      "DELETE FROM empleados WHERE id = $1",
+      [id]
+    );
+
+    // Eliminar persona
+    await pool.query(
+      "DELETE FROM personas WHERE id = $1",
+      [id]
+    );
+
+    res.json({
+      mensaje: "Empleado eliminado"
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      error: error.message
+    });
+
+  }
+
+});
+
+/* ======================================================
+   CLIENTES
+====================================================== */
+
+app.get("/clientes", async (req, res) => {
+
+  try {
+const result = await pool.query(`
+
+  SELECT
+    clientes.id,
+    personas.nombre,
+    personas.edad,
+    personas.telefono,
+    personas.email,
+    personas.fecha_alta,
+
+    COUNT(pedidos.id_cliente)::int
+    AS total_pedidos
+
+  FROM clientes
+
+  INNER JOIN personas
+    ON personas.id = clientes.id
+
+  LEFT JOIN pedidos
+    ON pedidos.id_cliente = clientes.id
+
+  GROUP BY
+    clientes.id,
+    personas.nombre,
+    personas.edad,
+    personas.telefono,
+    personas.email,
+    personas.fecha_alta
+
+  ORDER BY clientes.id
+
+`);
+
+    res.json(result.rows);
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json(error);
+
+  }
+
+});
+
+
+/* ======================================================
+   AGREGAR CLIENTE
+====================================================== */
+
+app.post("/clientes", async (req, res) => {
+
+  try {
+
+    const {
+      nombre,
+      edad,
+      telefono,
+      email
+    } = req.body;
+
+    // INSERTAR PERSONA
+    const personaResult = await pool.query(
+
+      `
+      INSERT INTO personas
+      (
+        nombre,
+        edad,
+        telefono,
+        email
+      )
+
+      VALUES ($1,$2,$3,$4)
+
+      RETURNING *
+      `,
+
+      [
+        nombre,
+        edad,
+        telefono,
+        email
+      ]
+
+    );
+
+    const persona = personaResult.rows[0];
+
+    // INSERTAR CLIENTE
+    const clienteResult = await pool.query(
+
+      `
+      INSERT INTO clientes
+      (
+        id
+      )
+
+      VALUES ($1)
+
+      RETURNING *
+      `,
+
+      [persona.id]
+
+    );
+
+    res.json({
+      persona,
+      cliente: clienteResult.rows[0]
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json(error);
+
+  }
+
+});
+
+
+/* ======================================================
+   EDITAR CLIENTE
+====================================================== */
+
+app.put("/clientes/:id", async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+
+    const {
+      nombre,
+      edad,
+      telefono,
+      email
+    } = req.body;
+
+    await pool.query(
+
+      `
+      UPDATE personas
+      SET
+        nombre = $1,
+        edad = $2,
+        telefono = $3,
+        email = $4
+
+      WHERE id = $5
+      `,
+
+      [
+        nombre,
+        edad,
+        telefono,
+        email,
+        id
+      ]
+
+    );
+
+    res.json({
+      mensaje: "Cliente actualizado"
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json(error);
+
+  }
+
+});
+
+
+/* ======================================================
+   ELIMINAR CLIENTE
+====================================================== */
+
+app.delete("/clientes/:id", async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+
+    // ELIMINAR CLIENTE
+    await pool.query(
+      "DELETE FROM clientes WHERE id = $1",
+      [id]
+    );
+
+    // ELIMINAR PERSONA
+    await pool.query(
+      "DELETE FROM personas WHERE id = $1",
+      [id]
+    );
+
+    res.json({
+      mensaje: "Cliente eliminado"
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json(error);
+
+  }
+
+});
+
+/* ======================================================
    INICIAR SERVIDOR
 ====================================================== */
 

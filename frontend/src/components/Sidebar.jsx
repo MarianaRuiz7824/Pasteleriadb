@@ -71,20 +71,20 @@ function Sidebar() {
 
 </Link>
 
-          <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer">
+          <Link
+  to="/empleados"
+  className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100"
+><UserRound size={20} />
+  Empleados
+</Link>
 
-            <Users size={20} />
-            Empleados
-
-          </div>
-
-          <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer">
-
-            <UserRound size={20} />
-            Clientes
-
-          </div>
-
+          <Link
+  to="/clientes"
+  className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer"
+>
+  <Users size={20} />
+  Clientes
+</Link>
         </nav>
 
       </div>
