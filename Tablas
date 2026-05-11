@@ -1,0 +1,116 @@
+create table Personas(
+  id         serial primary key, 
+  edad       int,  
+  nombre     varchar(80),
+  telefono   varchar(15),
+  email      varchar(100),   
+  fecha_alta date default current_date
+);
+
+create table Clientes(
+  id int primary key, 
+
+  constraint fk_cliente_persona
+  foreign key (id)
+  references Personas(id)
+    on delete cascade     
+    on update no action 
+);
+
+create table Empleados(
+  id  int primary key, 
+  posicion 	   varchar(30),
+  salario_mensual  decimal(8,2),
+
+  constraint fk_empleado_persona
+  foreign key (id)
+  references Personas(id)
+    on delete cascade   
+    on update no action 
+);
+
+------------------------------------------------------------------------------
+
+create table Ingredientes(
+  id 	serial primary key,
+  nombre 	    varchar(80),
+  unidad_medida     varchar(5),  
+  fecha_caducidad   date,
+  precio_por_unidad decimal(8,2),
+  cantidad_stock    int,
+  alerta_stock      boolean default false not null
+);
+
+create table Productos(
+  id 	serial primary key,
+  nombre            varchar(80),
+  precio            decimal(8,2),
+  cantidad_stock    int,
+  fecha_elaboracion date,
+  alerta_stock   boolean default false not null
+);
+
+
+
+create table Pedidos(
+  id  serial primary key, 
+  id_cliente      int not null,
+  id_empleado 	  int not null,
+  fecha_solicitud timestamp,
+  fecha_entrega   timestamp, 
+  comentarios     varchar(500),
+
+  constraint fk_pedido_cliente
+  foreign key (id_cliente)  
+  references Clientes(id)
+    on delete cascade
+    on update no action,
+
+  constraint fk_pedido_empleado
+  foreign key (id_empleado) 
+  references Empleados(id)
+    on delete cascade
+    on update no action
+);
+
+----------------------------------------------------------------------
+
+create table Productos_Ingredientes(
+  id_producto    int not null, 
+  id_ingrediente int not null,
+  cantidad       decimal(8, 2),
+
+  primary key (id_producto, id_ingrediente),
+  
+  constraint fk_id_producto
+  foreign key (id_producto) 
+  references Productos(id)
+    on delete cascade
+    on update no action,
+
+  constraint fk_id_ingrediente
+  foreign key (id_ingrediente) 
+  references Ingredientes(id)
+    on delete cascade
+    on update no action
+);
+
+create table Pedidos_Productos(
+  id_pedido   int not null, 
+  id_producto int not null,
+  cantidad    int,
+
+  primary key (id_pedido, id_producto),
+  
+  constraint fk_id_pedido
+  foreign key (id_pedido) 
+  references Pedidos(id)
+    on delete cascade
+    on update no action,
+
+  constraint fk_id_producto
+  foreign key (id_producto) 
+  references Productos(id)
+    on delete cascade
+    on update no action
+);
