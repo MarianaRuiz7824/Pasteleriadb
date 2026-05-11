@@ -1,0 +1,38 @@
+create or replace function trg_descontar_ingredientes()
+returns trigger as
+$$
+begin
+  update Ingredientes i
+  set cantidad_stock = cantidad_stock - (pi.cantidad * new.cantidad)
+  from Productos_Ingredientes pi
+  where pi.id_producto = new.id_producto
+    and pi.id_ingrediente = i.id;
+
+  return new;
+end;
+$$
+language plpgsql;
+
+create trigger descontar_ingredientes
+after insert on Pedidos_Productos
+for each row
+execute function trg_descontar_ingredientes();
+
+create or replace function trg_descontar_productos()
+returns trigger as
+$$
+begin
+ 
+  update Productos p
+  set cantidad_stock = cantidad_stock - NEW.cantidad
+  where p.id = NEW.id_producto;
+
+  return new;
+end;
+$$
+language plpgsql;
+
+create trigger descontar_productos
+after insert on Pedidos_Productos
+for each row
+execute function trg_descontar_productos();
