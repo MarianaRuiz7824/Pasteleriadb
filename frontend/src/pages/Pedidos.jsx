@@ -123,6 +123,7 @@ const cambiarProducto = (
 
 const agregarPedido = async () => {
 
+  
   try {
 
     await fetch(
@@ -130,10 +131,10 @@ const agregarPedido = async () => {
       {
 
         method: "POST",
-
         headers: {
-          "Content-Type": "application/json"
-        },
+  "Content-Type": "application/json",
+  rol
+},
 
         body: JSON.stringify({
 
@@ -157,6 +158,7 @@ const agregarPedido = async () => {
           productos: nuevosProductos.map((producto) => ({
   id_producto: Number(producto.id_producto),
   cantidad: Number(producto.cantidad)
+  
 }))
 
         })

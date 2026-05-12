@@ -201,26 +201,36 @@ app.delete("/productos/:id", async (req, res) => {
 
   try {
 
+    const pool = obtenerPool(req);
     const { id } = req.params;
 
-    await pool.query(
-      "DELETE FROM productos WHERE id = $1",
+    const result = await pool.query(
+      "DELETE FROM productos WHERE id = $1 RETURNING *",
       [id]
     );
 
+    // Si no existía el producto
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: "Producto no encontrado"
+      });
+    }
+
     res.json({
-      mensaje: "Producto eliminado"
+      mensaje: "Producto eliminado correctamente"
     });
 
   } catch (error) {
 
     console.log(error);
 
+    res.status(500).json({
+      error: "Error al eliminar producto"
+    });
+
   }
 
 });
-
-
 
 /* ======================================================
    INGREDIENTES DE PRODUCTO
@@ -413,7 +423,7 @@ app.delete("/ingredientes/:id", async (req, res) => {
   try {
 
     const { id } = req.params;
-
+const pool = obtenerPool(req);
     await pool.query(
       "DELETE FROM ingredientes WHERE id = $1",
       [id]
@@ -440,8 +450,7 @@ app.delete("/ingredientes/:id", async (req, res) => {
 app.get("/pedidos", async (req, res) => {
 
   try {
-
-    const pool = obtenerPool(req);
+const pool = obtenerPool(req); 
 const result = await pool.query(`
 
       SELECT
@@ -481,92 +490,70 @@ const result = await pool.query(`
     res.json(result.rows);
 
   } catch (error) {
+  console.log(error);
 
-    console.log(error);
-
-  }
+  return res.status(500).json({
+    error: error.message
+  });
+}
 
 });
 
 app.post("/pedidos", async (req, res) => {
+  const pool = obtenerPool(req);
 
   try {
-
     const {
       id_cliente,
       id_empleado,
       fecha_solicitud,
       fecha_entrega,
       comentarios,
-      productos
+      productos = []
     } = req.body;
+    const fechaSolicitudFinal = fecha_solicitud || null;
+const fechaEntregaFinal = fecha_entrega || null;
+    console.log("BODY PEDIDO:", req.body);
+    await pool.query("BEGIN");
 
-    // CREAR PEDIDO
+    // 1. crear pedido
     const pedidoResult = await pool.query(
-
       `
       INSERT INTO pedidos
-      (
-        id_cliente,
-        id_empleado,
-        fecha_solicitud,
-        fecha_entrega,
-        comentarios
-      )
-
+      (id_cliente, id_empleado, fecha_solicitud, fecha_entrega, comentarios)
       VALUES ($1,$2,$3,$4,$5)
-
       RETURNING *
       `,
-
-      [
-        id_cliente,
-        id_empleado,
-        fecha_solicitud,
-        fecha_entrega,
-        comentarios
-      ]
-
+      [id_cliente, id_empleado, fechaSolicitudFinal, fechaEntregaFinal, comentarios]
     );
 
     const pedido = pedidoResult.rows[0];
 
-    // INSERTAR PRODUCTOS DEL PEDIDO
+    // 2. insertar productos
     for (const producto of productos) {
-
       await pool.query(
-
         `
         INSERT INTO pedidos_productos
-        (
-          id_pedido,
-          id_producto,
-          cantidad
-        )
-
+        (id_pedido, id_producto, cantidad)
         VALUES ($1,$2,$3)
         `,
-
-        [
-          pedido.id,
-          producto.id_producto,
-          producto.cantidad
-        ]
-
+        [pedido.id, producto.id_producto, producto.cantidad]
       );
-
     }
+
+    await pool.query("COMMIT");
 
     res.json(pedido);
 
   } catch (error) {
+    await pool.query("ROLLBACK");
 
     console.log(error);
 
-    res.status(500).json(error);
-
+    res.status(500).json({
+      error: error.message
+    });
   }
-
 });
 
 /* ======================================================
@@ -578,7 +565,8 @@ app.get("/pedidos/:id/productos", async (req, res) => {
   try {
 
     const { id } = req.params;
-
+console.log("ROL:", req.headers["rol"]);
+console.log("POOL:", obtenerPool(req));
     const pool = obtenerPool(req);
 const result = await pool.query(`
 
@@ -661,7 +649,7 @@ const result = await pool.query(`
 app.post("/empleados", async (req, res) => {
 
   try {
-
+    const pool = obtenerPool(req);
     const {
       nombre,
       edad,
@@ -750,7 +738,7 @@ app.put("/empleados/:id", async (req, res) => {
   try {
 
     const { id } = req.params;
-
+const pool = obtenerPool(req);
     const {
       nombre,
       edad,
@@ -761,6 +749,7 @@ app.put("/empleados/:id", async (req, res) => {
     } = req.body;
 
     // ACTUALIZAR PERSONA
+    
     await pool.query(
 
       `
@@ -830,7 +819,7 @@ app.delete("/empleados/:id", async (req, res) => {
   try {
 
     const { id } = req.params;
-
+    const pool = obtenerPool(req);
     // Eliminar empleado
     await pool.query(
       "DELETE FROM empleados WHERE id = $1",
@@ -929,6 +918,7 @@ app.post("/clientes", async (req, res) => {
     } = req.body;
 
     // INSERTAR PERSONA
+    const pool = obtenerPool(req);
     const personaResult = await pool.query(
 
       `
@@ -1006,7 +996,7 @@ app.put("/clientes/:id", async (req, res) => {
       telefono,
       email
     } = req.body;
-
+const pool = obtenerPool(req);
     await pool.query(
 
       `
@@ -1056,6 +1046,7 @@ app.delete("/clientes/:id", async (req, res) => {
     const { id } = req.params;
 
     // ELIMINAR CLIENTE
+    const pool = obtenerPool(req);
     await pool.query(
       "DELETE FROM clientes WHERE id = $1",
       [id]
@@ -1086,42 +1077,55 @@ app.delete("/clientes/:id", async (req, res) => {
 ====================================================== */
 
 app.put("/pedidos/:id/estado", async (req, res) => {
-
   try {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    const rol = req.headers["rol"];
+
+    console.log("ROL RECIBIDO:", rol);
+    console.log("ID:", id);
+    console.log("ESTADO:", estado);
 
     const pool = obtenerPool(req);
 
-    const { id } = req.params;
-
-    const { estado } = req.body;
+    if (!pool) {
+      return res.status(500).json({
+        error: "No se pudo obtener conexión a la base de datos"
+      });
+    }
 
     const result = await pool.query(
-
       `
       UPDATE pedidos
       SET estado = $1
       WHERE id = $2
       RETURNING *
       `,
-
       [estado, id]
-
     );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: "Pedido no encontrado o no actualizado"
+      });
+    }
 
     res.json(result.rows[0]);
 
   } catch (error) {
-
-    console.log(error);
+    console.log("ERROR EN ESTADO PEDIDO:", error);
 
     res.status(500).json({
       error: error.message
     });
-
   }
-
 });
 
+app.use((req, res, next) => {
+  console.log("HEADERS:", req.headers);
+  next();
+});
 /* ======================================================
    INICIAR SERVIDOR
 ====================================================== */
