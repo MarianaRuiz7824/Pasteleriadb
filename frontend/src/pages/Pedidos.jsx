@@ -10,6 +10,69 @@ import {
 
 function Pedidos() {
   const [pedidos, setPedidos] = useState([]);
+  const rol = localStorage.getItem("rol");
+  const obtenerPedidos = async () => {
+
+  try {
+
+    const res = await fetch(
+      "http://localhost:3000/pedidos"
+    );
+
+    const data = await res.json();
+
+    setPedidos(data);
+
+    // ACTUALIZAR PANEL DERECHO
+    if (selectedPedido) {
+
+      const pedidoActualizado = data.find(
+        (p) => p.id === selectedPedido.id
+      );
+
+      if (pedidoActualizado) {
+
+        setSelectedPedido(pedidoActualizado);
+
+      }
+
+    }
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
+const cambiarEstado = async (id) => {
+
+  try {
+
+    await fetch(
+      `http://localhost:3000/pedidos/${id}/estado`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          rol
+        },
+
+        body: JSON.stringify({
+          estado: "entregado"
+        })
+      }
+    );
+
+    await obtenerPedidos();
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+};
   const [search, setSearch] = useState("");
   const [selectedPedido, setSelectedPedido] = useState(null);
   const [productosPedido, setProductosPedido] = useState([]);
@@ -135,7 +198,6 @@ const agregarPedido = async () => {
   }
 
 };
-
   useEffect(() => {
 
     fetch("http://localhost:3000/pedidos")
@@ -378,8 +440,13 @@ const agregarPedido = async () => {
 
                   <td className="p-4">
 
-                    <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm flex items-center gap-1 w-fit">
-
+                    <span
+  className={`px-4 py-1 rounded-full text-sm flex items-center gap-1 w-fit ${
+    pedido.estado?.toLowerCase().trim() === "pendiente"
+      ? "bg-orange-100 text-orange-700"
+      : "bg-green-100 text-green-700"
+  }`}
+>
                       <CheckCircle size={16} />
 
                       {pedido.estado}
@@ -390,16 +457,35 @@ const agregarPedido = async () => {
 
                   <td className="p-4">
 
-                    <button
-                      onClick={() => verPedido(pedido)}
-                      className="text-green-500 hover:text-green-700"
-                    >
+  <div className="flex items-center gap-3">
 
-                      <Eye size={20} />
+    {/* VER PEDIDO */}
+    <button
+      onClick={() => verPedido(pedido)}
+      className="text-green-500 hover:text-green-700"
+    >
 
-                    </button>
+      <Eye size={20} />
 
-                  </td>
+    </button>
+
+    {/* CAMBIAR A ENTREGADO */}
+    {pedido.estado?.toLowerCase().trim() === "pendiente" && (
+
+  <button
+    onClick={() =>
+      cambiarEstado(pedido.id)
+    }
+    className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-xs"
+  >
+    Entregar
+  </button>
+
+)}
+
+  </div>
+
+</td>
 
                 </tr>
 

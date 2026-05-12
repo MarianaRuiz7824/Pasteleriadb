@@ -41,12 +41,6 @@ function Dashboard() {
             color="bg-blue-500"
           />
 
-          <StatsCard
-            title="Materiales Disponibles"
-            value="67"
-            subtitle=""
-            color="bg-purple-500"
-          />
 
           <StatsCard
             title="Productos en Inventario"
@@ -61,19 +55,6 @@ function Dashboard() {
             subtitle=""
             color="bg-green-500"
           />
-
-        </div>
-
-        {/* Banner */}
-        <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-2xl p-8 mb-8">
-
-          <h2 className="text-3xl font-bold mb-2">
-            Valor Total del Inventario
-          </h2>
-
-          <p className="text-lg">
-            $13,040.00
-          </p>
 
         </div>
 

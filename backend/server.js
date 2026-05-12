@@ -1082,6 +1082,47 @@ app.delete("/clientes/:id", async (req, res) => {
 });
 
 /* ======================================================
+   CAMBIAR ESTADO PEDIDO
+====================================================== */
+
+app.put("/pedidos/:id/estado", async (req, res) => {
+
+  try {
+
+    const pool = obtenerPool(req);
+
+    const { id } = req.params;
+
+    const { estado } = req.body;
+
+    const result = await pool.query(
+
+      `
+      UPDATE pedidos
+      SET estado = $1
+      WHERE id = $2
+      RETURNING *
+      `,
+
+      [estado, id]
+
+    );
+
+    res.json(result.rows[0]);
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      error: error.message
+    });
+
+  }
+
+});
+
+/* ======================================================
    INICIAR SERVIDOR
 ====================================================== */
 
