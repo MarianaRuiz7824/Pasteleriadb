@@ -141,3 +141,43 @@ TO admin;
 GRANT ALL PRIVILEGES
 ON pedidos_productos
 TO admin;
+
+-- =====================================================
+-- INVENTARIO
+-- =====================================================
+
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON ingredientes
+TO empleado_inventario;
+
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON productos
+TO empleado_inventario;
+
+GRANT SELECT
+ON productos_ingredientes
+TO empleado_inventario;
+
+-- =====================================================
+-- TABLAS NECESARIAS PARA VER PEDIDOS
+-- =====================================================
+
+GRANT SELECT
+ON pedidos
+TO empleado_inventario;
+
+GRANT SELECT
+ON pedidos_productos
+TO empleado_inventario;
+
+GRANT SELECT
+ON clientes
+TO empleado_inventario;
+
+GRANT SELECT
+ON personas
+TO empleado_inventario;
+
+GRANT SELECT
+ON empleados
+TO empleado_inventario;
