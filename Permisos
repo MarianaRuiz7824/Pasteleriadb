@@ -44,3 +44,100 @@ grant usage, select on all sequences in schema public to empleado_ventas;
 grant usage, select on all sequences in schema public to empleado_inventario;
 grant usage, select on all sequences in schema public to empleado_normal;
 grant usage, select on all sequences in schema public to cliente;
+
+-- =====================================================
+-- PRODUCTOS
+-- =====================================================
+
+GRANT SELECT ON productos TO cliente;
+GRANT SELECT ON productos TO empleado_normal;
+
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON productos
+TO empleado_inventario;
+
+GRANT ALL PRIVILEGES
+ON productos
+TO admin;
+
+-- =====================================================
+-- INGREDIENTES
+-- =====================================================
+
+GRANT SELECT ON ingredientes TO cliente;
+GRANT SELECT ON ingredientes TO empleado_normal;
+
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON ingredientes
+TO empleado_inventario;
+
+GRANT ALL PRIVILEGES
+ON ingredientes
+TO admin;
+
+-- =====================================================
+-- PEDIDOS
+-- =====================================================
+
+GRANT SELECT ON pedidos TO cliente;
+GRANT SELECT ON pedidos TO empleado_normal;
+
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON pedidos
+TO empleado_ventas;
+
+GRANT ALL PRIVILEGES
+ON pedidos
+TO admin;
+
+-- =====================================================
+-- PERSONAS
+-- =====================================================
+
+GRANT SELECT ON personas TO empleado_ventas;
+GRANT SELECT ON personas TO empleado_normal;
+
+GRANT ALL PRIVILEGES
+ON personas
+TO admin;
+
+-- =====================================================
+-- CLIENTES
+-- =====================================================
+
+GRANT SELECT ON clientes TO empleado_ventas;
+GRANT SELECT ON clientes TO empleado_normal;
+
+GRANT ALL PRIVILEGES
+ON clientes
+TO admin;
+
+-- =====================================================
+-- EMPLEADOS
+-- =====================================================
+
+GRANT SELECT ON empleados TO empleado_normal;
+GRANT SELECT ON empleados TO empleado_ventas;
+
+GRANT ALL PRIVILEGES
+ON empleados
+TO admin;
+
+-- =====================================================
+-- TABLAS RELACIONADAS
+-- =====================================================
+
+GRANT SELECT ON productos_ingredientes
+TO empleado_inventario;
+
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON pedidos_productos
+TO empleado_ventas;
+
+GRANT ALL PRIVILEGES
+ON productos_ingredientes
+TO admin;
+
+GRANT ALL PRIVILEGES
+ON pedidos_productos
+TO admin;
